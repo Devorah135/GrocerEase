@@ -1,0 +1,118 @@
+from django.db import models
+
+class Address(models.Model):
+    street = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=50)
+    zip_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=100, default='USA')
+
+    def __str__(self):
+        return f"{self.street}, {self.city}, {self.state} {self.zip_code}"
+
+class StoreItem(models.Model):
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def change_price(self, new_price):
+        self.price = new_price
+        self.save()
+
+    def __str__(self):
+        return f"{self.name} (${self.price}) x {self.quantity}"
+
+class ListItem(models.Model):
+    item = models.ForeignKey(StoreItem, on_delete=models.CASCADE)
+
+    def stores_to_prices(self):
+        """
+        Returns a dictionary of {Store: Price} for this item's prices at different stores.
+        """
+        return {
+            price.store: price.price
+            for price in self.item.storeitemprice_set.all()
+        }
+
+    def __str__(self):
+        return self.item.name
+
+class Store(models.Model):
+    name = models.CharField(max_length=100)
+    address = models.OneToOneField(Address, on_delete=models.CASCADE)
+    inventory = models.ManyToManyField(StoreItem, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def add_to_inventory(self, item):
+        self.inventory.add(item)
+
+    def remove_from_inventory(self, item):
+        self.inventory.remove(item)
+
+    def clear_inventory(self):
+        self.inventory.clear()
+
+class Inventory(models.Model):
+    store = models.OneToOneField(Store, on_delete=models.CASCADE)
+    items = models.ManyToManyField(StoreItem, blank=True)
+
+    def add_item(self, item):
+        self.items.add(item)
+
+    def remove_item(self, item):
+        self.items.remove(item)
+
+    def __str__(self):
+        return f"Inventory for {self.store.name}"
+
+
+class StoreItemPrice(models.Model):
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    item = models.ForeignKey(StoreItem, on_delete=models.CASCADE, related_name='store_prices')
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.item.name} at {self.store.name}: ${self.price}"
+
+class ShoppingList(models.Model):
+    items = models.ManyToManyField(ListItem, blank=True)
+
+    def clear_list(self):
+        self.items.clear()
+
+    def delete_item(self, item_id):
+        self.items.remove(item_id)
+
+    def add_item(self, item):
+        self.items.add(item)
+
+    def total_store_prices(self):
+        """
+        Returns a dict of Store: total_price for the entire shopping list.
+        Assumes each ListItem's product has prices in different stores.
+        """
+        totals = {}
+        for item in self.items.all():
+            for price in item.product.productprice_set.all():  # assumes ProductPrice model exists
+                store = price.store
+                total = price.price * item.quantity
+                totals[store] = totals.get(store, 0) + total
+        return totals
+
+    def __str__(self):
+        return f"ShoppingList #{self.id}"
+
+
+class User(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email_address = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)  # You can hash this later
+    address = models.OneToOneField(Address, on_delete=models.CASCADE)
+    shopping_list = models.OneToOneField(ShoppingList, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
