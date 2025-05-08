@@ -1,0 +1,519 @@
+[
+    {
+        "model": "core.address",
+        "pk": 1,
+        "fields": {
+            "street": "123 Main St",
+            "city": "Springfield",
+            "state": "IL",
+            "zip_code": "62701",
+            "country": "USA"
+        }
+    },
+    {
+        "model": "core.store",
+        "pk": 1,
+        "fields": {
+            "name": "Local Grocery",
+            "address": 1
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 1,
+        "fields": {
+            "name": "Milk",
+            "price": "2.99",
+            "quantity": 10
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 1,
+        "fields": {
+            "store": 1,
+            "item": 1,
+            "price": "2.99",
+            "updated_at": "2023-10-01T12:00:00Z"
+        }
+    },
+    {
+        "model": "core.listitem",
+        "pk": 1,
+        "fields": {
+            "item": 1
+        }
+    },
+    {
+        "model": "core.shoppinglist",
+        "pk": 1,
+        "fields": {
+            "items": [1]
+        }
+    },
+    {
+        "model": "core.user",
+        "pk": 1,
+        "fields": {
+            "first_name": "David",
+            "last_name": "Smith",
+            "email_address": "david@example.com",
+            "password": "pbkdf2_sha256$260000$example$hashedpassword",
+            "address": 1,
+            "shopping_list": 1
+        }
+    },
+    {
+        "model": "core.address",
+        "pk": 1,
+        "fields": {
+            "street": "123 Kosher St",
+            "city": "Brooklyn",
+            "state": "NY",
+            "zip_code": "11201",
+            "country": "USA"
+        }
+    },
+    {
+        "model": "core.address",
+        "pk": 2,
+        "fields": {
+            "street": "456 Shabbat Ave",
+            "city": "Lakewood",
+            "state": "NJ",
+            "zip_code": "08701",
+            "country": "USA"
+        }
+    },
+    {
+        "model": "core.store",
+        "pk": 1,
+        "fields": {
+            "name": "Kosher Mart",
+            "address": 1
+        }
+    },
+    {
+        "model": "core.store",
+        "pk": 2,
+        "fields": {
+            "name": "Shabbat Groceries",
+            "address": 2
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 1,
+        "fields": {
+            "name": "Challah",
+            "price": "4.99",
+            "quantity": 50
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 2,
+        "fields": {
+            "name": "Gefilte Fish",
+            "price": "6.99",
+            "quantity": 30
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 3,
+        "fields": {
+            "name": "Matzah",
+            "price": "3.49",
+            "quantity": 100
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 1,
+        "fields": {
+            "store": 1,
+            "item": 1,
+            "price": "4.99",
+            "updated_at": "2023-10-01T12:00:00Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 2,
+        "fields": {
+            "store": 2,
+            "item": 2,
+            "price": "6.99",
+            "updated_at": "2023-10-01T12:00:00Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 3,
+        "fields": {
+            "store": 1,
+            "item": 3,
+            "price": "3.49",
+            "updated_at": "2023-10-01T12:00:00Z"
+        }
+    },
+    {
+        "model": "core.listitem",
+        "pk": 1,
+        "fields": {
+            "item": 1
+        }
+    },
+    {
+        "model": "core.listitem",
+        "pk": 2,
+        "fields": {
+            "item": 2
+        }
+    },
+    {
+        "model": "core.listitem",
+        "pk": 3,
+        "fields": {
+            "item": 3
+        }
+    },
+    {
+        "model": "core.shoppinglist",
+        "pk": 1,
+        "fields": {
+            "items": [1, 2, 3]
+        }
+    },
+    {
+        "model": "core.user",
+        "pk": 1,
+        "fields": {
+            "first_name": "David",
+            "last_name": "Cohen",
+            "email_address": "david.cohen@example.com",
+            "password": "pbkdf2_sha256$260000$example$hashedpassword",
+            "address": 1,
+            "shopping_list": 1
+        }
+    },
+    {
+        "model": "core.user",
+        "pk": 2,
+        "fields": {
+            "first_name": "Sarah",
+            "last_name": "Levy",
+            "email_address": "sarah.levy@example.com",
+            "password": "pbkdf2_sha256$260000$example$hashedpassword",
+            "address": 2,
+            "shopping_list": null
+        }
+    },
+    {
+        "model": "core.address",
+        "pk": 3,
+        "fields": {
+            "street": "789 Torah Way",
+            "city": "Monsey",
+            "state": "NY",
+            "zip_code": "10952",
+            "country": "USA"
+        }
+    },
+    {
+        "model": "core.address",
+        "pk": 4,
+        "fields": {
+            "street": "101 Yeshiva Blvd",
+            "city": "Baltimore",
+            "state": "MD",
+            "zip_code": "21215",
+            "country": "USA"
+        }
+    },
+    {
+        "model": "core.store",
+        "pk": 3,
+        "fields": {
+            "name": "Torah Market",
+            "address": 3
+        }
+    },
+    {
+        "model": "core.store",
+        "pk": 4,
+        "fields": {
+            "name": "Yeshiva Groceries",
+            "address": 4
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 4,
+        "fields": {
+            "name": "Kosher Cheese",
+            "price": "5.99",
+            "quantity": 40
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 5,
+        "fields": {
+            "name": "Kosher Wine",
+            "price": "12.99",
+            "quantity": 25
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 4,
+        "fields": {
+            "store": 3,
+            "item": 4,
+            "price": "5.99",
+            "updated_at": "2023-10-01T12:00:00Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 5,
+        "fields": {
+            "store": 4,
+            "item": 5,
+            "price": "12.99",
+            "updated_at": "2023-10-01T12:00:00Z"
+        }
+    },
+    {
+        "model": "core.listitem",
+        "pk": 4,
+        "fields": {
+            "item": 4
+        }
+    },
+    {
+        "model": "core.listitem",
+        "pk": 5,
+        "fields": {
+            "item": 5
+        }
+    },
+    {
+        "model": "core.shoppinglist",
+        "pk": 2,
+        "fields": {
+            "items": [4, 5]
+        }
+    },
+    {
+        "model": "core.user",
+        "pk": 3,
+        "fields": {
+            "first_name": "Rachel",
+            "last_name": "Goldberg",
+            "email_address": "rachel.goldberg@example.com",
+            "password": "pbkdf2_sha256$260000$example$hashedpassword",
+            "address": 3,
+            "shopping_list": 2
+        }
+    },
+    {
+        "model": "core.user",
+        "pk": 4,
+        "fields": {
+            "first_name": "Jacob",
+            "last_name": "Weiss",
+            "email_address": "jacob.weiss@example.com",
+            "password": "pbkdf2_sha256$260000$example$hashedpassword",
+            "address": 4,
+            "shopping_list": null
+        }
+    },
+      {
+          "model": "core.address",
+          "pk": 5,
+          "fields": {
+              "street": "202 Shul Lane",
+              "city": "Teaneck",
+              "state": "NJ",
+              "zip_code": "07666",
+              "country": "USA"
+          }
+      },
+      {
+          "model": "core.address",
+          "pk": 6,
+          "fields": {
+              "street": "303 Mitzvah St",
+              "city": "Cleveland",
+              "state": "OH",
+              "zip_code": "44118",
+              "country": "USA"
+          }
+      },
+      {
+          "model": "core.store",
+          "pk": 5,
+          "fields": {
+              "name": "Teaneck Kosher Foods",
+              "address": 5
+          }
+      },
+      {
+          "model": "core.store",
+          "pk": 6,
+          "fields": {
+              "name": "Cleveland Kosher Market",
+              "address": 6
+          }
+      },
+      {
+          "model": "core.storeitem",
+          "pk": 6,
+          "fields": {
+              "name": "Kosher Chicken",
+              "price": "9.99",
+              "quantity": 20
+          }
+      },
+      {
+          "model": "core.storeitem",
+          "pk": 7,
+          "fields": {
+              "name": "Kosher Beef",
+              "price": "14.99",
+              "quantity": 15
+          }
+      },
+      {
+          "model": "core.storeitemprice",
+          "pk": 6,
+          "fields": {
+              "store": 5,
+              "item": 6,
+              "price": "9.99",
+              "updated_at": "2023-10-01T12:00:00Z"
+          }
+      },
+      {
+          "model": "core.storeitemprice",
+          "pk": 7,
+          "fields": {
+              "store": 6,
+              "item": 7,
+              "price": "14.99",
+              "updated_at": "2023-10-01T12:00:00Z"
+          }
+      },
+      {
+          "model": "core.listitem",
+          "pk": 6,
+          "fields": {
+              "item": 6
+          }
+      },
+      {
+          "model": "core.listitem",
+          "pk": 7,
+          "fields": {
+              "item": 7
+          }
+      },
+      {
+          "model": "core.shoppinglist",
+          "pk": 3,
+          "fields": {
+              "items": [6, 7]
+          }
+      },
+      {
+          "model": "core.user",
+          "pk": 5,
+          "fields": {
+              "first_name": "Leah",
+              "last_name": "Friedman",
+              "email_address": "leah.friedman@example.com",
+              "password": "pbkdf2_sha256$260000$example$hashedpassword",
+              "address": 5,
+              "shopping_list": 3
+          }
+      },
+      {
+          "model": "core.user",
+          "pk": 6,
+          "fields": {
+              "first_name": "Moshe",
+              "last_name": "Klein",
+              "email_address": "moshe.klein@example.com",
+              "password": "pbkdf2_sha256$260000$example$hashedpassword",
+              "address": 6,
+              "shopping_list": null
+          }
+      },
+      {
+          "model": "core.address",
+          "pk": 7,
+          "fields": {
+              "street": "404 Torah St",
+              "city": "Passaic",
+              "state": "NJ",
+              "zip_code": "07055",
+              "country": "USA"
+          }
+      },
+      {
+          "model": "core.store",
+          "pk": 7,
+          "fields": {
+              "name": "Passaic Kosher Mart",
+              "address": 7
+          }
+      },
+      {
+          "model": "core.storeitem",
+          "pk": 8,
+          "fields": {
+              "name": "Kosher Milk",
+              "price": "3.99",
+              "quantity": 50
+          }
+      },
+      {
+          "model": "core.storeitemprice",
+          "pk": 8,
+          "fields": {
+              "store": 7,
+              "item": 8,
+              "price": "3.99",
+              "updated_at": "2023-10-01T12:00:00Z"
+          }
+      },
+      {
+          "model": "core.listitem",
+          "pk": 8,
+          "fields": {
+              "item": 8
+          }
+      },
+      {
+          "model": "core.shoppinglist",
+          "pk": 4,
+          "fields": {
+              "items": [8]
+          }
+      },
+      {
+          "model": "core.user",
+          "pk": 7,
+          "fields": {
+              "first_name": "Chaim",
+              "last_name": "Rosen",
+              "email_address": "chaim.rosen@example.com",
+              "password": "pbkdf2_sha256$260000$example$hashedpassword",
+              "address": 7,
+              "shopping_list": 4
+          }
+      }
+  ]
