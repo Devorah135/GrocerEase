@@ -10,6 +10,7 @@ class Address(models.Model):
     def __str__(self):
         return f"{self.street}, {self.city}, {self.state} {self.zip_code}"
 
+
 class StoreItem(models.Model):
     name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=6, decimal_places=2)
@@ -22,6 +23,7 @@ class StoreItem(models.Model):
     def __str__(self):
         return f"{self.name} (${self.price}) x {self.quantity}"
 
+
 class ListItem(models.Model):
     item = models.ForeignKey(StoreItem, on_delete=models.CASCADE)
 
@@ -31,11 +33,12 @@ class ListItem(models.Model):
         """
         return {
             price.store: price.price
-            for price in self.item.storeitemprice_set.all()
+            for price in self.item.store_prices.all()
         }
 
     def __str__(self):
         return self.item.name
+
 
 class Store(models.Model):
     name = models.CharField(max_length=100)
@@ -54,19 +57,6 @@ class Store(models.Model):
     def clear_inventory(self):
         self.inventory.clear()
 
-class Inventory(models.Model):
-    store = models.OneToOneField(Store, on_delete=models.CASCADE)
-    items = models.ManyToManyField(StoreItem, blank=True)
-
-    def add_item(self, item):
-        self.items.add(item)
-
-    def remove_item(self, item):
-        self.items.remove(item)
-
-    def __str__(self):
-        return f"Inventory for {self.store.name}"
-
 
 class StoreItemPrice(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
@@ -76,6 +66,7 @@ class StoreItemPrice(models.Model):
 
     def __str__(self):
         return f"{self.item.name} at {self.store.name}: ${self.price}"
+
 
 class ShoppingList(models.Model):
     items = models.ManyToManyField(ListItem, blank=True)
@@ -92,11 +83,11 @@ class ShoppingList(models.Model):
     def total_store_prices(self):
         """
         Returns a dict of Store: total_price for the entire shopping list.
-        Assumes each ListItem's product has prices in different stores.
         """
         totals = {}
-        for item in self.items.all():
-            for price in item.product.productprice_set.all():  # assumes ProductPrice model exists
+        for list_item in self.items.all():
+            item = list_item.item
+            for price in item.store_prices.all():
                 store = price.store
                 total = price.price * item.quantity
                 totals[store] = totals.get(store, 0) + total
@@ -110,7 +101,7 @@ class User(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email_address = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)  # You can hash this later
+    password = models.CharField(max_length=128)  # You can hash this later or use Django's auth system
     address = models.OneToOneField(Address, on_delete=models.CASCADE)
     shopping_list = models.OneToOneField(ShoppingList, on_delete=models.SET_NULL, null=True, blank=True)
 
