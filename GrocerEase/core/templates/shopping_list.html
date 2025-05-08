@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shopping List</title>
+</head>
+<body>
+<h1>Shopping Lists</h1>
+<ul>
+    {% for shopping_list in shopping_lists %}
+        <li>{{ shopping_list }}</li>
+    {% endfor %}
+</ul>
+</body>
+</html>
