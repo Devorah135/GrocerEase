@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 class Address(models.Model):
@@ -69,8 +70,7 @@ class StoreItemPrice(models.Model):
 
 
 class ShoppingList(models.Model):
-    items = models.ManyToManyField('List Item')
-    user = models.OneToOneField('User', on_delete=models.CASCADE)
+    items = models.ManyToManyField(ListItem)
 
     def total_price(self):
         return sum(item.item.price * item.item.quantity for item in self.items.all())
