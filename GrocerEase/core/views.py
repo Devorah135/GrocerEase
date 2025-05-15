@@ -4,6 +4,7 @@ from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.shortcuts import redirect, render
+from django.shortcuts import render
 from .forms import AddItemForm
 from .models import ListItem, ShoppingList
 
@@ -40,7 +41,7 @@ def shopping_list_view(request):
     else:
         form = AddItemForm()
 
-    return render(request, 'shopping_list.html', {
+    return render(request, 'core/shopping_list.html', {
         'shopping_list': shopping_list,
         'form': form,
         'total_price': total_price
