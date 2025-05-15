@@ -69,7 +69,11 @@ class StoreItemPrice(models.Model):
 
 
 class ShoppingList(models.Model):
-    items = models.ManyToManyField(ListItem, blank=True)
+    items = models.ManyToManyField('List Item')
+    user = models.OneToOneField('User', on_delete=models.CASCADE)
+
+    def total_price(self):
+        return sum(item.item.price * item.item.quantity for item in self.items.all())
 
     def clear_list(self):
         self.items.clear()

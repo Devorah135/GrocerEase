@@ -6,6 +6,7 @@ from .models import ListItem, ShoppingList
 # core/views.py
 def shopping_list_view(request):
     shopping_list, _ = ShoppingList.objects.get_or_create(user=request.user)
+    total_price = shopping_list.total_price()
     if request.method == 'POST':
         if 'delete_item' in request.POST:
             item_id = request.POST.get('delete_item')
