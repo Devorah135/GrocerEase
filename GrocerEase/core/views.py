@@ -1,5 +1,5 @@
 # core/views.py
-from django.contrib.auth import login
+from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.shortcuts import redirect, render
@@ -45,15 +45,20 @@ def shopping_list_view(request):
         'total_price': total_price
     })
 
+# Custom UserCreationForm for the custom User model
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = get_user_model()  # Use the custom User model
+        fields = ('username', 'password1', 'password2')  # Add other fields if needed
+
 def signup_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            return redirect('shopping_list')
+            return redirect('login')  # Redirect to login after signup
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
 def login_view(request):

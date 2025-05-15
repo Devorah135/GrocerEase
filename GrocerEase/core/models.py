@@ -106,7 +106,7 @@ class ShoppingList(models.Model):
 class User(AbstractUser):
     address = models.OneToOneField(Address, on_delete=models.CASCADE, null=True, blank=True)
     shopping_list = models.OneToOneField('ShoppingList', on_delete=models.SET_NULL, null=True, blank=True)
-    username = models.CharField(max_length=150, unique=True, default='default_user')
+    #username = models.CharField(max_length=150, unique=True, default='default_user')
 
     def __str__(self):
         return self.username
