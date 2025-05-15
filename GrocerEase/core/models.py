@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class Address(models.Model):
@@ -28,9 +31,6 @@ class ListItem(models.Model):
     item = models.ForeignKey(StoreItem, on_delete=models.CASCADE)
 
     def stores_to_prices(self):
-        """
-        Returns a dictionary of {Store: Price} for this item's prices at different stores.
-        """
         return {
             price.store: price.price
             for price in self.item.store_prices.all()
@@ -68,8 +68,27 @@ class StoreItemPrice(models.Model):
         return f"{self.item.name} at {self.store.name}: ${self.price}"
 
 
+def get_default_user():
+    User = get_user_model()
+    # Ensure a default user exists or create one
+    default_user, _ = User.objects.get_or_create(
+        username='default_user',
+        defaults={'password': 'default_password'}
+    )
+    return default_user.id  # Return the numeric ID of the user
+
 class ShoppingList(models.Model):
-    items = models.ManyToManyField(ListItem, blank=True)
+    items = models.ManyToManyField(ListItem)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='shopping_list_user',
+        default=get_default_user
+    )
+    name = models.CharField(max_length=255, default="Default List")
+
+    def total_price(self):
+        return sum(item.item.price * item.item.quantity for item in self.items.all())
 
     def clear_list(self):
         self.items.clear()
@@ -81,9 +100,6 @@ class ShoppingList(models.Model):
         self.items.add(item)
 
     def total_store_prices(self):
-        """
-        Returns a dict of Store: total_price for the entire shopping list.
-        """
         totals = {}
         for list_item in self.items.all():
             item = list_item.item
@@ -97,13 +113,8 @@ class ShoppingList(models.Model):
         return f"ShoppingList #{self.id}"
 
 
-class User(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email_address = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)  # You can hash this later or use Django's auth system
-    address = models.OneToOneField(Address, on_delete=models.CASCADE)
-    shopping_list = models.OneToOneField(ShoppingList, on_delete=models.SET_NULL, null=True, blank=True)
+class User(AbstractUser):
+    address = models.OneToOneField(Address, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.username
