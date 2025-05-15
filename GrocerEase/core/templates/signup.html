@@ -8,6 +8,11 @@
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <p style="color: red;">{{ error }}</p>
+            {% endfor %}
+        {% endfor %}
         <button type="submit">Signup</button>
     </form>
 </body>

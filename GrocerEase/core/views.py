@@ -59,6 +59,9 @@ def signup_view(request):
             form.save()
             messages.success(request, 'Account created successfully! You can now log in.')
             return redirect('login')  # Redirect to login after signup
+        else:
+            messages.error(request, 'Please correct the errors below.')
+
     else:
         form = CustomUserCreationForm()
     return render(request, 'signup.html', {'form': form})
