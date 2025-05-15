@@ -15,6 +15,13 @@ def shopping_list_view(request):
         elif 'clear_list' in request.POST:
             shopping_list.clear_list()
             return redirect('shopping_list')
+        elif 'edit_quantity' in request.POST:
+            item_id = request.POST.get('edit_quantity')
+            new_quantity = int(request.POST.get('new_quantity', 1))
+            list_item = shopping_list.items.get(id=item_id)
+            list_item.item.quantity = new_quantity
+            list_item.item.save()
+            return redirect('shopping_list')
         else:
             form = AddItemForm(request.POST)
             if form.is_valid():
