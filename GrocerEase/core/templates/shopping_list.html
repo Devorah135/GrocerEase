@@ -16,6 +16,10 @@
         </li>
     {% endfor %}
 </ul>
+<form method="POST" style="margin-top: 20px;">
+    {% csrf_token %}
+    <button type="submit" name="clear_list" value="1">Clear Shopping List</button>
+</form>
 {# form to add item #}
 <form method="POST">
     {% csrf_token %}
