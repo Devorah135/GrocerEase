@@ -16,18 +16,27 @@ def shopping_list_view(request):
     if request.method == 'POST':
         if 'delete_item' in request.POST:
             item_id = request.POST.get('delete_item')
-            shopping_list.delete_item(item_id)
+            try:
+                shopping_list.delete_item(item_id)
+            except ListItem.DoesNotExist:
+                messages.error(request, "Item not found.")
             return redirect('shopping_list')
+
         elif 'clear_list' in request.POST:
             shopping_list.clear_list()
             return redirect('shopping_list')
+
         elif 'edit_quantity' in request.POST:
             item_id = request.POST.get('edit_quantity')
             new_quantity = int(request.POST.get('new_quantity', 1))
-            list_item = shopping_list.items.get(id=item_id)
-            list_item.item.quantity = new_quantity
-            list_item.item.save()
+            try:
+                list_item = shopping_list.items.get(id=item_id)
+                list_item.item.quantity = new_quantity
+                list_item.item.save()
+            except ListItem.DoesNotExist:
+                messages.error(request, "Item not found.")
             return redirect('shopping_list')
+
         else:
             form = AddItemForm(request.POST)
             if form.is_valid():
@@ -38,6 +47,9 @@ def shopping_list_view(request):
                 list_item.item.save()
                 shopping_list.add_item(list_item)
                 return redirect('shopping_list')
+            else:
+                messages.error(request, "Invalid form submission.")
+
     else:
         form = AddItemForm()
 
@@ -46,7 +58,6 @@ def shopping_list_view(request):
         'form': form,
         'total_price': total_price
     })
-
 # Custom UserCreationForm for the custom User model
 class CustomUserCreationForm(UserCreationForm):
     class Meta:

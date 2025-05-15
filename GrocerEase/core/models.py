@@ -1,5 +1,6 @@
 from email.policy import default
 
+from django.conf import settings
 from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 
@@ -73,6 +74,14 @@ class StoreItemPrice(models.Model):
 
 class ShoppingList(models.Model):
     items = models.ManyToManyField(ListItem)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Use the custom user model
+        on_delete=models.CASCADE,
+        related_name='shopping_list_user',  # Avoid reverse accessor conflicts
+        default='default_user'  # Default value for the user field
+    )
+    name = models.CharField(max_length=255, default="Default List")
+    #created_at = models.DateTimeField(auto_now_add=True)
 
     def total_price(self):
         return sum(item.item.price * item.item.quantity for item in self.items.all())
@@ -105,7 +114,7 @@ class ShoppingList(models.Model):
 
 class User(AbstractUser):
     address = models.OneToOneField(Address, on_delete=models.CASCADE, null=True, blank=True)
-    shopping_list = models.OneToOneField('ShoppingList', on_delete=models.SET_NULL, null=True, blank=True)
+    shopping_list = models.OneToOneField('ShoppingList', on_delete=models.SET_NULL, null=True, blank=True, related_name='user_list')
     #username = models.CharField(max_length=150, unique=True, default='default_user')
 
     def __str__(self):
