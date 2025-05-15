@@ -1,4 +1,6 @@
-from django.contrib.auth.models import User
+from email.policy import default
+
+from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 
 class Address(models.Model):
@@ -101,13 +103,10 @@ class ShoppingList(models.Model):
         return f"ShoppingList #{self.id}"
 
 
-class User(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email_address = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)  # You can hash this later or use Django's auth system
-    address = models.OneToOneField(Address, on_delete=models.CASCADE)
-    shopping_list = models.OneToOneField(ShoppingList, on_delete=models.SET_NULL, null=True, blank=True)
+class User(AbstractUser):
+    address = models.OneToOneField(Address, on_delete=models.CASCADE, null=True, blank=True)
+    shopping_list = models.OneToOneField('ShoppingList', on_delete=models.SET_NULL, null=True, blank=True)
+    username = models.CharField(max_length=150, unique=True, default='default_user')
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.username
