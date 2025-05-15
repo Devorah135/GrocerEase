@@ -1,8 +1,10 @@
 # core/views.py
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from .forms import AddItemForm
 from .models import ListItem, ShoppingList
 
+@login_required
 def shopping_list_view(request):
     shopping_list, _ = ShoppingList.objects.get_or_create(user=request.user)
     total_price = shopping_list.total_price()
