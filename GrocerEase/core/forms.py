@@ -1,6 +1,7 @@
 # core/forms.py
 from django import forms
-from .models import ShoppingList
+from .models import ShoppingList, ListItem, StoreItem
+
 
 class ShoppingListForm(forms.ModelForm):
     class Meta:
