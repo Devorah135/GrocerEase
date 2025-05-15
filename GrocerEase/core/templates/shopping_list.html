@@ -9,6 +9,10 @@
     {% for item in shopping_list.items.all %}
         <li class="shopping_list_item">
             {{ item.name }} - {{ item.quantity }}
+            <form method="POST" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" name="delete_item" value="{{ item.id }}">Delete</button>
+            </form>
         </li>
     {% endfor %}
 </ul>
