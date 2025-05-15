@@ -57,6 +57,8 @@ def shopping_list_view(request):
         'form': form,
         'total_price': total_price
     })
+
+
 # Custom UserCreationForm for the custom User model
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
