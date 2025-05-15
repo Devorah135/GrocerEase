@@ -1,4 +1,5 @@
 # core/views.py
+from django.contrib import messages
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -55,7 +56,8 @@ def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            form.save()
+            messages.success(request, 'Account created successfully! You can now log in.')
             return redirect('login')  # Redirect to login after signup
     else:
         form = CustomUserCreationForm()
