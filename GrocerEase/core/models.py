@@ -1,7 +1,6 @@
-from email.policy import default
-
 from django.conf import settings
-from django.contrib.auth.models import User, AbstractUser
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class Address(models.Model):
@@ -32,9 +31,6 @@ class ListItem(models.Model):
     item = models.ForeignKey(StoreItem, on_delete=models.CASCADE)
 
     def stores_to_prices(self):
-        """
-        Returns a dictionary of {Store: Price} for this item's prices at different stores.
-        """
         return {
             price.store: price.price
             for price in self.item.store_prices.all()
@@ -72,16 +68,24 @@ class StoreItemPrice(models.Model):
         return f"{self.item.name} at {self.store.name}: ${self.price}"
 
 
+def get_default_user():
+    User = get_user_model()
+    # Ensure a default user exists or create one
+    default_user, _ = User.objects.get_or_create(
+        username='default_user',
+        defaults={'password': 'default_password'}
+    )
+    return default_user.id  # Return the numeric ID of the user
+
 class ShoppingList(models.Model):
     items = models.ManyToManyField(ListItem)
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # Use the custom user model
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='shopping_list_user',  # Avoid reverse accessor conflicts
-        default='default_user'  # Default value for the user field
+        related_name='shopping_list_user',
+        default=get_default_user
     )
     name = models.CharField(max_length=255, default="Default List")
-    #created_at = models.DateTimeField(auto_now_add=True)
 
     def total_price(self):
         return sum(item.item.price * item.item.quantity for item in self.items.all())
@@ -96,9 +100,6 @@ class ShoppingList(models.Model):
         self.items.add(item)
 
     def total_store_prices(self):
-        """
-        Returns a dict of Store: total_price for the entire shopping list.
-        """
         totals = {}
         for list_item in self.items.all():
             item = list_item.item
@@ -114,8 +115,6 @@ class ShoppingList(models.Model):
 
 class User(AbstractUser):
     address = models.OneToOneField(Address, on_delete=models.CASCADE, null=True, blank=True)
-    shopping_list = models.OneToOneField('ShoppingList', on_delete=models.SET_NULL, null=True, blank=True, related_name='user_list')
-    #username = models.CharField(max_length=150, unique=True, default='default_user')
 
     def __str__(self):
         return self.username
