@@ -4,11 +4,20 @@
     <title>Shopping List</title>
 </head>
 <body>
-<h1>Shopping Lists</h1>
-<ul>
-    {% for shopping_list in shopping_lists %}
-        <li>{{ shopping_list }}</li>
+<h1>Your Shopping List</h1>
+<ul id="shopping_list">
+    {% for item in shopping_list.items.all %}
+        <li class="shopping_list_item">
+            {{ item.name }} - {{ item.quantity }}
+        </li>
     {% endfor %}
 </ul>
+{# form to add item #}
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Item</button>
+</form>
+
 </body>
 </html>
