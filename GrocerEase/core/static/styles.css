@@ -4,25 +4,12 @@ body {
     margin: 0;
     padding: 24px;
 }
+
 h1 {
     color: #222;
     letter-spacing: 1px;
 }
-#shopping_list {
-    list-style: none;
-    padding: 0;
-}
-.shopping_list_item {
-    background: #f7fafc;
-    margin-bottom: 14px;
-    padding: 14px 18px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 8px rgba(60, 60, 60, 0.04);
-    border: 1px solid #e2e8f0;
-}
+
 button {
     background: #b6e0fe;
     color: #333;
@@ -33,17 +20,11 @@ button {
     font-weight: 500;
     transition: background 0.2s;
 }
+
 button:hover {
     background: #a7c7e7;
 }
+
 form {
     display: inline;
-}
-input[type="number"] {
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    padding: 4px 8px;
-    background: #f1f5f9;
-    color: #333;
-    width: 60px;
 }
