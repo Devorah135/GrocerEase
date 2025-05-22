@@ -53,7 +53,7 @@ def shopping_list_view(request):
     else:
         form = AddItemForm()
 
-    return render(request, 'core/shopping_list.html', {
+    return render(request, 'shopping_list.html', {
         'shopping_list': shopping_list,
         'form': form,
         'total_price': total_price
