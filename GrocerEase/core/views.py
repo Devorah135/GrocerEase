@@ -69,12 +69,12 @@ def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Account created successfully! You can now log in.')
-            return redirect('login')  # Redirect to login after signup
+            user = form.save()
+            login(request, user)  # Log in the new user
+            messages.success(request, 'Account created successfully! Welcome!')
+            return redirect('shopping_list')  # Go straight to shopping list
         else:
             messages.error(request, 'Please correct the errors below.')
-
     else:
         form = CustomUserCreationForm()
     return render(request, 'signup.html', {'form': form})
