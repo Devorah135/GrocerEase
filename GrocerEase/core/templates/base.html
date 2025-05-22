@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{% static 'core/styles.css' %}">
 </head>
 <body>
+
 <header>
     <h1>GROCEREASE</h1>
     <nav>
@@ -24,16 +25,16 @@
     <hr>
 </header>
 
-{% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
-
 <main>
     {% block content %}{% endblock %}
 </main>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
 </body>
 </html>
