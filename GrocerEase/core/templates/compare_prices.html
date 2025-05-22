@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Compare Prices</title>
+</head>
+<body>
+<h1>Compare Prices Across Stores</h1>
+<ul>
+    {% for store, total in store_totals.items %}
+        <li>{{ store.name }}: ${{ total }}</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'shopping_list' %}">← Back to Shopping List</a>
+
+</body>
+</html>
