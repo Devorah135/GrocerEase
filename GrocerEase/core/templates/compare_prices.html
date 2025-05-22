@@ -11,6 +11,11 @@
         <li>{{ store.name }}: ${{ total }}</li>
     {% endfor %}
 </ul>
+
+<h3>Best Deal</h3>
+<p>
+    You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}.
+</p>
 <a href="{% url 'shopping_list' %}">← Back to Shopping List</a>
 
 </body>

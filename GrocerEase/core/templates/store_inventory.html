@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Manage Store Inventory{% endblock %}
+{% block content %}
+
+    <h2>Manage Inventory</h2>
+
+    {% for store in stores %}
+        <h3>{{ store.name }}</h3>
+        <ul>
+            {% for item in store.inventory.all %}
+                <li>
+                    {{ item.name }} - ${{ item.price }}
+                    <form method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="store_id" value="{{ store.id }}">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <input type="hidden" name="action" value="remove">
+                        <button type="submit">Remove</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li>No items yet</li>
+            {% endfor %}
+        </ul>
+
+        <form method="POST">
+            {% csrf_token %}
+            <select name="item_id">
+                {% for item in items %}
+                    <option value="{{ item.id }}">{{ item.name }}</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="store_id" value="{{ store.id }}">
+            <input type="hidden" name="action" value="add">
+            <button type="submit">Add to Inventory</button>
+        </form>
+        <hr>
+    {% endfor %}
+
+{% endblock %}
