@@ -2,52 +2,37 @@
 <html>
 <head>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
     <title>Shopping List</title>
 </head>
 <body>
-    <h1>Your Shopping List</h1>
+<h1>Your Shopping List</h1>
+<ul id="shopping_list">
+    {% for item in shopping_list.items.all %}
+        <li class="shopping_list_item">
+            {{ item.name }} - {{ item.quantity }}
+            <form method="POST" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" name="delete_item" value="{{ item.id }}">Delete</button>
+            </form>
+        </li>
+    {% endfor %}
+</ul>
+<form method="POST" style="display:inline;">
+    {% csrf_token %}
+    <input type="number" name="new_quantity" value="{{ item.item.quantity }}" min="1" style="width:50px;">
+    <button type="submit" name="edit_quantity" value="{{ item.id }}">Update</button>
+</form>
+<form method="POST" style="margin-top: 20px;">
+    {% csrf_token %}
+    <button type="submit" name="clear_list" value="1">Clear Shopping List</button>
+</form>
+{# form to add item #}
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Item</button>
+</form>
 
-    <table id="shopping_list">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Quantity</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in shopping_list.items.all %}
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td>
-                        <form method="POST" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="number" name="new_quantity" value="{{ item.quantity }}" min="1" style="width:50px;">
-                            <button type="submit" name="edit_quantity" value="{{ item.id }}">Update</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form method="POST" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" name="delete_item" value="{{ item.id }}">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <form method="POST" style="margin-top: 20px;">
-        {% csrf_token %}
-        <button type="submit" name="clear_list" value="1">Clear Shopping List</button>
-    </form>
-
-    <h2>Add New Item</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Add Item</button>
-    </form>
 </body>
 </html>
