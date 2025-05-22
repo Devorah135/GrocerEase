@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <link rel="stylesheet" href="{% static 'shopping-list-styles.css' %}">
-    <title>Shopping List</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Shopping List{% endblock %}
+
+{% block content %}
     <h1>Your Shopping List</h1>
 
     {# Shopping List Table #}
@@ -67,16 +63,4 @@
         </tr>
         </tfoot>
     </table>
-
-    {# Add New Item Form #}
-{#    <div class="add-item-wrapper">#}
-{#        <h2>Add New Item</h2>#}
-{#        <form method="POST" id="add_item">#}
-{#            {% csrf_token %}#}
-{#            {{ form.as_p }}#}
-{#            <button type="submit">Add Item</button>#}
-{#        </form>#}
-{#    </div>#}
-
-</body>
-</html>
+{% endblock %}
