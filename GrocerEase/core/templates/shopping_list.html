@@ -2,13 +2,14 @@
 <html>
 <head>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
-    <link rel="stylesheet" href="{% static 'core/shoppingliststyles.css' %}">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static 'shopping-list-styles.css' %}">
     <title>Shopping List</title>
 </head>
 <body>
     <h1>Your Shopping List</h1>
 
+    {# Shopping List Table #}
     <table id="shopping_list">
         <thead>
             <tr>
@@ -22,13 +23,15 @@
                 <tr>
                     <td>{{ item.item.name }}</td>
                     <td>
+                        {# form to edit quantity of an item #}
                         <form method="POST" style="display:inline;">
                             {% csrf_token %}
-                            <input type="number" name="new_quantity" value="{{ item.item.quantity }}" min="1" style="width:50px;">
-                            <button type="submit" name="edit_quantity" value="{{ item.id }}">Update</button>
+                            <input type="hidden" name="edit_quantity" value="{{ item.id }}">
+                            <input type="number" name="new_quantity" value="{{ item.item.quantity }}" min="1" style="width:50px;" onchange="this.form.submit();">
                         </form>
                     </td>
                     <td>
+                        {# form to remove an item from shopping list #}
                         <form method="POST" style="display:inline;">
                             {% csrf_token %}
                             <button type="submit" name="delete_item" value="{{ item.id }}">Delete</button>
@@ -36,19 +39,44 @@
                     </td>
                 </tr>
             {% endfor %}
+
+            <tr>
+                <form method="POST">
+                    {% csrf_token %}
+                    <td>
+                        {{ form.item }}
+                    </td>
+                    <td>
+                        {{ form.quantity }}
+                    </td>
+                    <td>
+                        <button type="submit">Add</button>
+                    </td>
+                </form>
+            </tr>
+
         </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="4" style="text-align: center;">
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" id="clear_list" name="clear_list" value="1" class="danger-button">Clear Shopping List</button>
+                </form>
+            </td>
+        </tr>
+        </tfoot>
     </table>
 
-    <form method="POST" style="margin-top: 20px;">
-        {% csrf_token %}
-        <button type="submit" name="clear_list" value="1">Clear Shopping List</button>
-    </form>
+    {# Add New Item Form #}
+{#    <div class="add-item-wrapper">#}
+{#        <h2>Add New Item</h2>#}
+{#        <form method="POST" id="add_item">#}
+{#            {% csrf_token %}#}
+{#            {{ form.as_p }}#}
+{#            <button type="submit">Add Item</button>#}
+{#        </form>#}
+{#    </div>#}
 
-    <h2>Add New Item</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Add Item</button>
-    </form>
 </body>
 </html>
