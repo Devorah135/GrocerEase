@@ -119,5 +119,50 @@
             "password": "pbkdf2_sha256$260000$examples$hashedpassword",
             "address": 2
         }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 3,
+        "fields": {
+            "name": "Eggs",
+            "price": "3.49",
+            "quantity": 30
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 4,
+        "fields": {
+            "name": "Butter",
+            "price": "2.79",
+            "quantity": 20
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 5,
+        "fields": {
+            "name": "Apples",
+            "price": "1.99",
+            "quantity": 100
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 6,
+        "fields": {
+            "name": "Orange Juice",
+            "price": "4.49",
+            "quantity": 15
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 7,
+        "fields": {
+            "name": "Chicken Breast",
+            "price": "5.99",
+            "quantity": 25
+        }
     }
 ]

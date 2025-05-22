@@ -20,11 +20,11 @@
         <tbody>
             {% for item in shopping_list.items.all %}
                 <tr>
-                    <td>{{ item.name }}</td>
+                    <td>{{ item.item.name }}</td>
                     <td>
                         <form method="POST" style="display:inline;">
                             {% csrf_token %}
-                            <input type="number" name="new_quantity" value="{{ item.quantity }}" min="1" style="width:50px;">
+                            <input type="number" name="new_quantity" value="{{ item.item.quantity }}" min="1" style="width:50px;">
                             <button type="submit" name="edit_quantity" value="{{ item.id }}">Update</button>
                         </form>
                     </td>
