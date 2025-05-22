@@ -90,3 +90,11 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+@login_required
+def compare_prices_view(request):
+    shopping_list = ShoppingList.objects.get(user=request.user)
+    store_totals = shopping_list.total_store_prices()
+
+    return render(request, 'compare_prices.html', {
+        'store_totals': store_totals
+    })
