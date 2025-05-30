@@ -3,25 +3,29 @@
 {% block title %}Price Comparison{% endblock %}
 
 {% block content %}
-
     <h1>Price Comparison</h1>
-    <ul>
-        {% for store, total in store_totals.items %}
-            <li>
-                {{ store.name }}: ${{ total }}
-                {% if store == cheapest_store %}
-                    <strong>(Cheapest)</strong>
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
 
-    <h3>Best Deal</h3>
-    {% if savings %}
-        <p>You save ${{ savings }} by shopping at {{ cheapest_store.name }}.</p>
+    {% if sorted_totals %}
+        <ul>
+            {% for store, total in sorted_totals %}
+                <li>
+                    {{ store.name }}: ${{ total }}
+                    {% if store == cheapest_store %}
+                        <strong>(Cheapest)</strong>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h3>Best Deal</h3>
+        {% if savings %}
+            <p>You save ${{ savings }} by shopping at {{ cheapest_store.name }}.</p>
+        {% else %}
+            <p>{{ cheapest_store.name }} is the only store with available pricing.</p>
+        {% endif %}
     {% else %}
-        <p>{{ cheapest_store.name }} is the only store with available pricing.</p>
+        <p>No pricing available for your list.</p>
     {% endif %}
-    <a href="{% url 'shopping_list' %}">← Back to Shopping List</a>
 
+    <a href="{% url 'shopping_list' %}">← Back to Shopping List</a>
 {% endblock %}
