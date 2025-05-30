@@ -8,53 +8,58 @@
     {# Shopping List Table #}
     <table id="shopping_list">
         <thead>
-            <tr>
-                <th>Item</th>
-                <th>Quantity</th>
-                <th>Actions</th>
-            </tr>
+        <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Actions</th>
+        </tr>
         </thead>
         <tbody>
-            {% for item in shopping_list.items.all %}
-                <tr>
-                    <td>{{ item.item.name }}</td>
-                    <td>
-                        {# form to edit quantity of an item #}
-                        <form method="POST" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="hidden" name="edit_quantity" value="{{ item.id }}">
-                            <input type="number" name="new_quantity" value="{{ item.item.quantity }}" min="1" style="width:50px;" onchange="this.form.submit();">
-                        </form>
-                    </td>
-                    <td>
-                        {# form to remove an item from shopping list #}
-                        <form method="POST" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" name="delete_item" value="{{ item.id }}">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-
+        {% for item in shopping_list.items.all %}
             <tr>
-                <form method="POST">
-                    {% csrf_token %}
-                    <td>
-                        {{ form.item }}
-                    </td>
-                    <td>
-                        {{ form.quantity }}
-                    </td>
-                    <td>
-                        <button type="submit">Add</button>
-                    </td>
-                </form>
+                <td>{{ item.item.name }}</td>
+                <td>
+                    {# form to edit quantity of an item #}
+                    <form method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="edit_quantity" value="{{ item.id }}">
+                        <input type="number" name="new_quantity" value="{{ item.item.quantity }}" min="1" style="width:50px;" onchange="this.form.submit();">
+                    </form>
+                </td>
+                <td>
+                    {# form to remove an item from shopping list #}
+                    <form method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" name="delete_item" value="{{ item.id }}">Delete</button>
+                    </form>
+                </td>
             </tr>
+        {% endfor %}
 
+        <tr>
+            <td colspan="3">
+                <form method="POST" style="display: flex; gap: 1rem; align-items: center;">
+                    {% csrf_token %}
+                    <div>
+                        {{ form.item }}
+                        <br>
+                        <label for="manual_item_name">Or enter item name:</label>
+                        <input type="text" name="manual_item_name" id="manual_item_name" value="{{ form.manual_item_name.value|default_if_none:'' }}">
+                    </div>
+                    <div>
+                        <label for="quantity">Quantity:</label><br>
+                        {{ form.quantity }}
+                    </div>
+                    <div>
+                        <button type="submit">Add</button>
+                    </div>
+                </form>
+            </td>
+        </tr>
         </tbody>
         <tfoot>
         <tr>
-            <td colspan="4" style="text-align: center;">
+            <td colspan="3" style="text-align: center;">
                 <form method="POST">
                     {% csrf_token %}
                     <button type="submit" id="clear_list" name="clear_list" value="1" class="danger-button">Clear Shopping List</button>
@@ -65,4 +70,18 @@
     </table>
 
     <a href="{% url 'compare_prices' %}">Compare Prices Across Stores</a>
+
+    <!-- jQuery and jQuery UI (autocomplete) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <script>
+        $(function () {
+            $("#manual_item_name").autocomplete({
+                source: "/suggest-items/",
+                minLength: 2
+            });
+        });
+    </script>
 {% endblock %}
