@@ -94,7 +94,9 @@ def login_view(request):
 def compare_prices_view(request):
     shopping_list = ShoppingList.objects.get(user=request.user)
     store_totals = shopping_list.total_store_prices()
+    cheapest_store = min(store_totals, key=store_totals.get) if store_totals else None
 
     return render(request, 'compare_prices.html', {
-        'store_totals': store_totals
+        'store_totals': store_totals,
+        'cheapest_store': cheapest_store
     })
