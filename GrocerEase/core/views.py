@@ -9,6 +9,7 @@ from .forms import AddItemForm
 from .models import ListItem, ShoppingList
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import Store, StoreItem
+from django.http import JsonResponse
 
 #@login_required
 def shopping_list_view(request):
@@ -33,13 +34,12 @@ def shopping_list_view(request):
             item_id = request.POST.get('edit_quantity')
             new_quantity = int(request.POST.get('new_quantity', 1))
             try:
-                # Validate the new quantity
                 if new_quantity < 1:
                     messages.error(request, "Quantity must be at least 1.")
                     return redirect('shopping_list')
                 list_item = shopping_list.items.get(id=item_id)
-                list_item.item.quantity = new_quantity
-                list_item.item.save()
+                list_item.quantity = new_quantity
+                list_item.save()
                 messages.success(request, "Quantity updated.")
             except ListItem.DoesNotExist:
                 messages.error(request, "Item not found.")
@@ -49,23 +49,26 @@ def shopping_list_view(request):
             form = AddItemForm(request.POST)
             if form.is_valid():
                 store_item = form.cleaned_data['item']
+                manual_name = form.cleaned_data['manual_item_name']
                 quantity = form.cleaned_data['quantity']
 
-                # Quantity validation
-                if quantity < 1:
-                    messages.error(request, "Quantity must be at least 1.")
+                if not store_item and not manual_name:
+                    messages.error(request, "Please select or enter an item name.")
                     return redirect('shopping_list')
 
-                list_item, _ = ListItem.objects.get_or_create(item=store_item)
-                list_item.item.quantity = quantity
-                list_item.item.save()
+                item_name = store_item.name if store_item else manual_name
 
-                # Check if the item already exists in the shopping list
-                if list_item in shopping_list.items.all():
-                    messages.info(request, f"{store_item.name} is already in your list.")
+                # Check if item already exists
+                existing = shopping_list.items.filter(name=item_name).first()
+                if existing:
+                    messages.info(request, f"{item_name} is already in your list.")
                 else:
-                    shopping_list.add_item(list_item)
-                    messages.success(request, f"Added {store_item.name} to your list.")
+                    list_item = ListItem.objects.create(
+                        shopping_list=shopping_list,
+                        name=item_name,
+                        quantity=quantity
+                    )
+                    messages.success(request, f"Added {item_name} to your list.")
                 return redirect('shopping_list')
             else:
                 messages.error(request, "Invalid form submission.")
@@ -78,7 +81,6 @@ def shopping_list_view(request):
         'form': form,
         'total_price': total_price
     })
-
 
 # Custom UserCreationForm for the custom User model
 class CustomUserCreationForm(UserCreationForm):
@@ -161,3 +163,13 @@ def store_inventory_view(request):
         'stores': stores,
         'items': items
     })
+
+def store_item_suggestions(request):
+    query = request.GET.get('term', '')
+    results = []
+
+    if query:
+        matches = StoreItem.objects.filter(name__icontains=query)[:10]
+        results = [{'label': item.name, 'value': item.name} for item in matches]
+
+    return JsonResponse(results, safe=False)
