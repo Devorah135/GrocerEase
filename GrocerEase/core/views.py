@@ -1,17 +1,16 @@
-# core/views.py
 from django.contrib import messages
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.shortcuts import redirect, render
-from django.shortcuts import render
-from .forms import AddItemForm
-from .models import ListItem, ShoppingList
-from django.contrib.admin.views.decorators import staff_member_required
-from .models import Store, StoreItem
+from django.shortcuts import redirect, render, get_object_or_404
 from django.http import JsonResponse
+from django.contrib.admin.views.decorators import staff_member_required
 
-#@login_required
+from .forms import AddItemForm
+from .models import ListItem, ShoppingList, Store, StoreItem
+
+
+@login_required
 def shopping_list_view(request):
     shopping_list, _ = ShoppingList.objects.get_or_create(user=request.user)
     total_price = shopping_list.total_price()
@@ -72,7 +71,6 @@ def shopping_list_view(request):
                 return redirect('shopping_list')
             else:
                 messages.error(request, "Invalid form submission.")
-
     else:
         form = AddItemForm()
 
@@ -82,25 +80,28 @@ def shopping_list_view(request):
         'total_price': total_price
     })
 
+
 # Custom UserCreationForm for the custom User model
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
-        model = get_user_model()  # Use the custom User model
-        fields = ('username', 'password1', 'password2')  # Add other fields if needed
+        model = get_user_model()
+        fields = ('username', 'password1', 'password2')
+
 
 def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # Log in the new user
+            login(request, user)
             messages.success(request, 'Account created successfully! Welcome!')
-            return redirect('shopping_list')  # Go straight to shopping list
+            return redirect('shopping_list')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = CustomUserCreationForm()
     return render(request, 'signup.html', {'form': form})
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -109,36 +110,27 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             return redirect('shopping_list')
-
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+
 @login_required
 def compare_prices_view(request):
     shopping_list = ShoppingList.objects.get(user=request.user)
-
-    # Make sure the user does not have an empty shopping list
-    if not shopping_list.items.exists():
-        messages.info(request, "Your shopping list is empty. Add items to compare prices.")
-        return redirect('shopping_list')
-
     store_totals = shopping_list.total_store_prices()
+    cheapest_store = min(store_totals, key=store_totals.get) if store_totals else None
 
-    if not store_totals:
-        messages.warning(request, "No store prices available for items in your list.")
-        return redirect('shopping_list')
-
-    # Find the cheapest and most expensive store totals
-    cheapest_store = min(store_totals, key=store_totals.get)
-    most_expensive_store = max(store_totals, key=store_totals.get)
-    savings = store_totals[most_expensive_store] - store_totals[cheapest_store]
+    # Optional: Add savings if you calculate it elsewhere
+    savings = None  # placeholder if needed
 
     return render(request, 'compare_prices.html', {
         'store_totals': store_totals,
         'cheapest_store': cheapest_store,
         'savings': savings,
     })
+
+
 @staff_member_required
 def store_inventory_view(request):
     stores = Store.objects.all()
@@ -163,6 +155,7 @@ def store_inventory_view(request):
         'stores': stores,
         'items': items
     })
+
 
 def store_item_suggestions(request):
     query = request.GET.get('term', '')
