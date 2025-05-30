@@ -41,8 +41,8 @@ def shopping_list_view(request):
                     messages.error(request, "Quantity must be at least 1.")
                     return redirect('shopping_list')
                 list_item = shopping_list.items.get(id=item_id)
-                list_item.item.quantity = new_quantity
-                list_item.item.save()
+                list_item.quantity = new_quantity
+                list_item.save()
                 messages.success(request, "Quantity updated.")
             except ListItem.DoesNotExist:
                 messages.error(request, "Item not found.")

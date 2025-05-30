@@ -16,20 +16,19 @@ class Address(models.Model):
 
 class StoreItem(models.Model):
     name = models.CharField(max_length=100)
-    # price = models.DecimalField(max_digits=6, decimal_places=2)
-    quantity = models.PositiveIntegerField(default=1)
 
     def change_price(self, new_price, store):
-        sip, _= StoreItemPrice.objects.get_or_create(item=self, store=store)
+        sip, _ = StoreItemPrice.objects.get_or_create(item=self, store=store)
         sip.price = new_price
         sip.save()
 
     def __str__(self):
-        return f"{self.name} x {self.quantity}"
+        return f"{self.name}"
 
 
 class ListItem(models.Model):
     item = models.ForeignKey(StoreItem, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)  # ✅ Quantity moved here
 
     def stores_to_prices(self):
         return {
@@ -38,7 +37,7 @@ class ListItem(models.Model):
         }
 
     def __str__(self):
-        return self.item.name
+        return f"{self.item.name} x {self.quantity}"
 
 
 class Store(models.Model):
@@ -71,12 +70,12 @@ class StoreItemPrice(models.Model):
 
 def get_default_user():
     User = get_user_model()
-    # Ensure a default user exists or create one
     default_user, _ = User.objects.get_or_create(
         username='default_user',
         defaults={'password': 'default_password'}
     )
-    return default_user.id  # Return the numeric ID of the user
+    return default_user.id
+
 
 class ShoppingList(models.Model):
     items = models.ManyToManyField(ListItem)
@@ -95,9 +94,9 @@ class ShoppingList(models.Model):
         for list_item in self.items.all():
             try:
                 sip = StoreItemPrice.objects.get(item=list_item.item, store=store)
-                total += sip.price * list_item.item.quantity
+                total += sip.price * list_item.quantity
             except StoreItemPrice.DoesNotExist:
-                pass  # or raise or log
+                pass
         return total
 
     def clear_list(self):
@@ -112,10 +111,9 @@ class ShoppingList(models.Model):
     def total_store_prices(self):
         totals = {}
         for list_item in self.items.all():
-            item = list_item.item
-            for price in item.store_prices.all():
+            for price in list_item.item.store_prices.all():
                 store = price.store
-                total = price.price * item.quantity
+                total = price.price * list_item.quantity
                 totals[store] = totals.get(store, 0) + total
         return totals
 
