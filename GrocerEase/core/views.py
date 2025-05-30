@@ -5,9 +5,11 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.shortcuts import redirect, render, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
+from collections import defaultdict
 
 from .forms import AddItemForm
-from .models import ListItem, ShoppingList, Store, StoreItem
+from .models import ListItem, ShoppingList, Store, StoreItem, StoreItemPrice
+
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
@@ -103,12 +105,12 @@ def compare_prices_view(request):
     shopping_list = ShoppingList.objects.get(user=request.user)
     store_totals = shopping_list.total_store_prices()
 
-    if not store_totals:
-        return render(request, 'compare_prices.html', {
-            'sorted_totals': [],
-            'cheapest_store': None,
-            'savings': None,
-        })
+    # Find missing items per store
+    missing_items_by_store = defaultdict(list)
+    for store in store_totals.keys():
+        for list_item in shopping_list.items.all():
+            if not StoreItemPrice.objects.filter(store=store, item=list_item.item).exists():
+                missing_items_by_store[store].append(list_item.item.name)
 
     # Sort stores by total price
     sorted_totals = sorted(store_totals.items(), key=lambda x: x[1])
@@ -123,6 +125,7 @@ def compare_prices_view(request):
         'sorted_totals': sorted_totals,
         'cheapest_store': cheapest_store,
         'savings': savings,
+        'missing_items_by_store': dict(missing_items_by_store),
     })
 
 

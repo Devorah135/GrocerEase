@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% block title %}Price Comparison{% endblock %}
+{% load static %}
+{% load custom_tags %}
 
 {% block content %}
     <h1>Price Comparison</h1>
@@ -13,6 +15,11 @@
                     {% if store == cheapest_store %}
                         <strong>(Cheapest)</strong>
                     {% endif %}
+                    {% with missing_items=missing_items_by_store|get_item:store %}
+                        {% if missing_items %}
+                            <br><span style="color: red;">⚠️ Missing prices for: {{ missing_items|join:", " }}</span>
+                        {% endif %}
+                    {% endwith %}
                 </li>
             {% endfor %}
         </ul>
