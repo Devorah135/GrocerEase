@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-4tqh1a!n0qezmwfcxd-nljb!2j$%vt+7=pkpw%nxf__sk7$_h+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['3.87.247.125']
 
 
 # Application definition
@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'GrocerEase.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'grocerease',
+        'USER': 'postgres',
+        'PASSWORD': 'mcon357pwd',  # Replace with your actual password
+        'HOST': 'mcon-357-db.chifotzikir0.us-east-1.rds.amazonaws.com',
+        'PORT': '5432',  # Default PostgreSQL port
     }
 }
 
