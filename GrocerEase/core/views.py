@@ -105,7 +105,7 @@ def compare_prices_view(request):
 
     if not store_totals:
         return render(request, 'compare_prices.html', {
-            'store_totals': {},
+            'sorted_totals': [],
             'cheapest_store': None,
             'savings': None,
         })
@@ -114,17 +114,17 @@ def compare_prices_view(request):
     sorted_totals = sorted(store_totals.items(), key=lambda x: x[1])
     cheapest_store, cheapest_price = sorted_totals[0]
 
-    # If there's a second cheapest, calculate savings
     savings = None
     if len(sorted_totals) > 1:
         second_cheapest_price = sorted_totals[1][1]
         savings = round(second_cheapest_price - cheapest_price, 2)
 
     return render(request, 'compare_prices.html', {
-        'store_totals': store_totals,
+        'sorted_totals': sorted_totals,
         'cheapest_store': cheapest_store,
         'savings': savings,
     })
+
 
 
 @staff_member_required
