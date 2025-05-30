@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Manage Store Inventory{% endblock %}
 {% block content %}
+    {% load inventory_extras %}
 
     <h2>Manage Inventory</h2>
 
@@ -9,7 +10,15 @@
         <ul>
             {% for item in store.inventory.all %}
                 <li>
-                    {{ item.name }} - ${{ item.price }}
+                    {% with item.store_prices.all|get_store_price:store as store_price %}
+                        {{ item.name }} -
+                        {% if store_price %}
+                            ${{ store_price.price }}
+                        {% else %}
+                            <em>No price set</em>
+                        {% endif %}
+                    {% endwith %}
+
                     <form method="POST" style="display:inline;">
                         {% csrf_token %}
                         <input type="hidden" name="store_id" value="{{ store.id }}">

@@ -96,7 +96,14 @@ def compare_prices_view(request):
     store_totals = shopping_list.total_store_prices()
     cheapest_store = min(store_totals, key=store_totals.get) if store_totals else None
 
+    sorted_totals = sorted(store_totals.values())
+    if len(sorted_totals) >= 2:
+        savings = sorted_totals[1] - sorted_totals[0]
+    else:
+        savings = 0
+
     return render(request, 'compare_prices.html', {
         'store_totals': store_totals,
-        'cheapest_store': cheapest_store
+        'cheapest_store': cheapest_store,
+        'savings': savings,
     })
