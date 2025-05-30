@@ -9,6 +9,10 @@ from django.contrib.admin.views.decorators import staff_member_required
 from .forms import AddItemForm
 from .models import ListItem, ShoppingList, Store, StoreItem
 
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = get_user_model()
+        fields = ('username', 'password1', 'password2')
 
 @login_required
 def shopping_list_view(request):
@@ -37,8 +41,8 @@ def shopping_list_view(request):
                     messages.error(request, "Quantity must be at least 1.")
                     return redirect('shopping_list')
                 list_item = shopping_list.items.get(id=item_id)
-                list_item.quantity = new_quantity
-                list_item.save()
+                list_item.item.quantity = new_quantity
+                list_item.item.save()
                 messages.success(request, "Quantity updated.")
             except ListItem.DoesNotExist:
                 messages.error(request, "Item not found.")
@@ -55,37 +59,26 @@ def shopping_list_view(request):
                     messages.error(request, "Please select or enter an item name.")
                     return redirect('shopping_list')
 
-                item_name = store_item.name if store_item else manual_name
+                final_item = store_item if store_item else StoreItem.objects.get_or_create(name=manual_name)[0]
+                final_item.quantity = quantity
+                final_item.save()
 
-                # Check if item already exists
-                existing = shopping_list.items.filter(name=item_name).first()
-                if existing:
-                    messages.info(request, f"{item_name} is already in your list.")
-                else:
-                    list_item = ListItem.objects.create(
-                        shopping_list=shopping_list,
-                        name=item_name,
-                        quantity=quantity
-                    )
-                    messages.success(request, f"Added {item_name} to your list.")
-                return redirect('shopping_list')
+                list_item, _ = ListItem.objects.get_or_create(item=final_item)
+                shopping_list.add_item(list_item)
+                messages.success(request, f"Added {final_item.name} to your list.")
             else:
                 messages.error(request, "Invalid form submission.")
-    else:
-        form = AddItemForm()
+
+            return redirect('shopping_list')  # ✅ correctly indented
+
+    # GET request or first load
+    form = AddItemForm()
 
     return render(request, 'shopping_list.html', {
         'shopping_list': shopping_list,
         'form': form,
         'total_price': total_price
     })
-
-
-# Custom UserCreationForm for the custom User model
-class CustomUserCreationForm(UserCreationForm):
-    class Meta:
-        model = get_user_model()
-        fields = ('username', 'password1', 'password2')
 
 
 def signup_view(request):
