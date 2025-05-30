@@ -4,8 +4,11 @@ from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
+
 from .forms import AddItemForm
-from .models import ListItem, ShoppingList
+from .models import ListItem, ShoppingList, Store, StoreItem
+
 
 #@login_required
 def shopping_list_view(request):
@@ -106,4 +109,34 @@ def compare_prices_view(request):
         'store_totals': store_totals,
         'cheapest_store': cheapest_store,
         'savings': savings,
+    })
+
+
+@require_http_methods(["GET", "POST"])
+def store_inventory_view(request):
+    stores = Store.objects.all()
+    items = StoreItem.objects.all()
+
+    if request.method == 'POST':
+        store_id = request.POST.get('store_id')
+        item_id = request.POST.get('item_id')
+        action = request.POST.get('action')
+
+        try:
+            store = Store.objects.get(id=store_id)
+            item = StoreItem.objects.get(id=item_id)
+        except (Store.DoesNotExist, StoreItem.DoesNotExist):
+            messages.error(request, "Invalid store or item.")
+            return redirect('store_inventory')
+
+        if action == 'add':
+            store.add_to_inventory(item)
+        elif action == 'remove':
+            store.remove_from_inventory(item)
+
+        return redirect('store_inventory')
+
+    return render(request, 'store_inventory.html', {
+        'stores': stores,
+        'items': items,
     })
