@@ -16,70 +16,60 @@ class CustomUserCreationForm(UserCreationForm):
 
 @login_required
 def shopping_list_view(request):
-    shopping_list, _ = ShoppingList.objects.get_or_create(user=request.user)
-    total_price = shopping_list.total_price()
+    user = request.user
+    shopping_list, _ = ShoppingList.objects.get_or_create(user=user)
 
     if request.method == 'POST':
-        if 'delete_item' in request.POST:
-            item_id = request.POST.get('delete_item')
-            try:
-                shopping_list.delete_item(item_id)
-                messages.success(request, "Item removed from your list.")
-            except ListItem.DoesNotExist:
-                messages.error(request, "Item not found.")
-            return redirect('shopping_list')
+        form = AddItemForm(request.POST)
+        if form.is_valid():
+            item = form.cleaned_data['item']
+            quantity = form.cleaned_data['quantity']
 
-        elif 'clear_list' in request.POST:
-            shopping_list.clear_list()
-            return redirect('shopping_list')
-
-        elif 'edit_quantity' in request.POST:
-            item_id = request.POST.get('edit_quantity')
-            new_quantity = int(request.POST.get('new_quantity', 1))
-            try:
-                if new_quantity < 1:
-                    messages.error(request, "Quantity must be at least 1.")
-                    return redirect('shopping_list')
-                list_item = shopping_list.items.get(id=item_id)
-                list_item.quantity = new_quantity
-                list_item.save()
-                messages.success(request, "Quantity updated.")
-            except ListItem.DoesNotExist:
-                messages.error(request, "Item not found.")
-            return redirect('shopping_list')
-
-        else:
-            form = AddItemForm(request.POST)
-            if form.is_valid():
-                store_item = form.cleaned_data['item']
-                manual_name = form.cleaned_data['manual_item_name']
-                quantity = form.cleaned_data['quantity']
-
-                if not store_item and not manual_name:
-                    messages.error(request, "Please select or enter an item name.")
-                    return redirect('shopping_list')
-
-                final_item = store_item if store_item else StoreItem.objects.get_or_create(name=manual_name)[0]
-                final_item.quantity = quantity
-                final_item.save()
-
-                list_item, _ = ListItem.objects.get_or_create(item=final_item)
-                shopping_list.add_item(list_item)
-                messages.success(request, f"Added {final_item.name} to your list.")
+            # Get or create the ListItem
+            list_item, created = ListItem.objects.get_or_create(item=item)
+            if not created:
+                list_item.quantity += quantity
             else:
-                messages.error(request, "Invalid form submission.")
+                list_item.quantity = quantity
+            list_item.save()
 
-            return redirect('shopping_list')  # ✅ correctly indented
+            shopping_list.add_item(list_item)
+            return redirect('shopping_list')
+        else:
+            messages.error(request, "Please enter a valid item.")
 
-    # GET request or first load
-    form = AddItemForm()
+    else:
+        form = AddItemForm()
 
-    return render(request, 'shopping_list.html', {
-        'shopping_list': shopping_list,
+    if request.method == 'POST' and 'edit_quantity' in request.POST:
+        item_id = request.POST.get('edit_quantity')
+        new_quantity = request.POST.get('new_quantity')
+        try:
+            item = ListItem.objects.get(id=item_id)
+            item.quantity = int(new_quantity)
+            item.save()
+        except (ListItem.DoesNotExist, ValueError):
+            pass
+        return redirect('shopping_list')
+
+    if request.method == 'POST' and 'delete_item' in request.POST:
+        item_id = request.POST.get('delete_item')
+        try:
+            item = ListItem.objects.get(id=item_id)
+            shopping_list.items.remove(item)
+        except ListItem.DoesNotExist:
+            pass
+        return redirect('shopping_list')
+
+    if request.method == 'POST' and 'clear_list' in request.POST:
+        shopping_list.clear_list()
+        return redirect('shopping_list')
+
+    context = {
         'form': form,
-        'total_price': total_price
-    })
-
+        'shopping_list': shopping_list,
+    }
+    return render(request, 'shopping_list.html', context)
 
 def signup_view(request):
     if request.method == 'POST':
