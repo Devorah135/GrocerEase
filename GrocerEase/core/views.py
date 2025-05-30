@@ -112,10 +112,23 @@ def login_view(request):
 def compare_prices_view(request):
     shopping_list = ShoppingList.objects.get(user=request.user)
     store_totals = shopping_list.total_store_prices()
-    cheapest_store = min(store_totals, key=store_totals.get) if store_totals else None
 
-    # Optional: Add savings if you calculate it elsewhere
-    savings = None  # placeholder if needed
+    if not store_totals:
+        return render(request, 'compare_prices.html', {
+            'store_totals': {},
+            'cheapest_store': None,
+            'savings': None,
+        })
+
+    # Sort stores by total price
+    sorted_totals = sorted(store_totals.items(), key=lambda x: x[1])
+    cheapest_store, cheapest_price = sorted_totals[0]
+
+    # If there's a second cheapest, calculate savings
+    savings = None
+    if len(sorted_totals) > 1:
+        second_cheapest_price = sorted_totals[1][1]
+        savings = round(second_cheapest_price - cheapest_price, 2)
 
     return render(request, 'compare_prices.html', {
         'store_totals': store_totals,
