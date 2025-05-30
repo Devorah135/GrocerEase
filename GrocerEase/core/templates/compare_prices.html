@@ -1,22 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Compare Prices</title>
-</head>
-<body>
-<h1>Compare Prices Across Stores</h1>
-<ul>
-    {% for store, total in store_totals.items %}
-        <li>{{ store.name }}: ${{ total }}</li>
-    {% endfor %}
-</ul>
+{% extends 'base.html' %}
 
-<h3>Best Deal</h3>
-<p>
-    You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}.
-</p>
-<a href="{% url 'shopping_list' %}">← Back to Shopping List</a>
+{% block title %}Price Comparison{% endblock %}
 
-</body>
-</html>
+{% block content %}
+
+    <h1>Price Comparison</h1>
+    <ul>
+        {% for store, total in store_totals.items %}
+            <li>
+                {{ store.name }}: ${{ total }}
+                {% if store == cheapest_store %}
+                    <strong>(Cheapest)</strong>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h3>Best Deal</h3>
+    <p>
+        You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}.
+    </p>
+    <a href="{% url 'shopping_list' %}">← Back to Shopping List</a>
+
+{% endblock %}
