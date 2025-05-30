@@ -16,15 +16,16 @@ class Address(models.Model):
 
 class StoreItem(models.Model):
     name = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    # price = models.DecimalField(max_digits=6, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 
-    def change_price(self, new_price):
-        self.price = new_price
-        self.save()
+    def change_price(self, new_price, store):
+        sip, _= StoreItemPrice.objects.get_or_create(item=self, store=store)
+        sip.price = new_price
+        sip.save()
 
     def __str__(self):
-        return f"{self.name} (${self.price}) x {self.quantity}"
+        return f"{self.name} x {self.quantity}"
 
 
 class ListItem(models.Model):
@@ -87,8 +88,17 @@ class ShoppingList(models.Model):
     )
     name = models.CharField(max_length=255, default="Default List")
 
-    def total_price(self):
-        return sum(item.item.price * item.item.quantity for item in self.items.all())
+    def total_price(self, store=None):
+        if store is None:
+            return min(self.total_store_prices().values(), default=0)
+        total = 0
+        for list_item in self.items.all():
+            try:
+                sip = StoreItemPrice.objects.get(item=list_item.item, store=store)
+                total += sip.price * list_item.item.quantity
+            except StoreItemPrice.DoesNotExist:
+                pass  # or raise or log
+        return total
 
     def clear_list(self):
         self.items.clear()
