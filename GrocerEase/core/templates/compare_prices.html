@@ -9,8 +9,8 @@
         <ul>
             {% for store, total in sorted_totals %}
                 <li>
-                    {{ store.name }}: ${{ total }}
-                    {% if store == cheapest_store %}
+                    {{ store }}: ${{ total|floatformat:2 }}
+                    {% if store == cheapest_store.name %}
                         <strong>(Cheapest)</strong>
                     {% endif %}
                 </li>
@@ -19,7 +19,7 @@
 
         <h3>Best Deal</h3>
         {% if savings %}
-            <p>You save ${{ savings }} by shopping at {{ cheapest_store.name }}.</p>
+            <p>You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}.</p>
         {% else %}
             <p>{{ cheapest_store.name }} is the only store with available pricing.</p>
         {% endif %}

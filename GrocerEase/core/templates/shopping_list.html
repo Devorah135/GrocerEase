@@ -17,7 +17,15 @@
         <tbody>
         {% for item in shopping_list.items.all %}
             <tr>
-                <td>{{ item.item.name }}</td>
+                <td>
+                    {% if item.name %}
+                        {{ item.name }}
+                    {% elif item.store_item %}
+                        {{ item.store_item.name }}
+                    {% else %}
+                        Unnamed
+                    {% endif %}
+                </td>
                 <td>
                     {# form to edit quantity of an item #}
                     <form method="POST" style="display:inline;">
