@@ -1,0 +1,172 @@
+[
+    {
+        "model": "core.storeitemprice",
+        "pk": 3,
+        "fields": {
+            "store": 1,
+            "item": 2,
+            "price": "5.90",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 4,
+        "fields": {
+            "store": 1,
+            "item": 4,
+            "price": "3.51",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 5,
+        "fields": {
+            "store": 1,
+            "item": 5,
+            "price": "2.16",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 6,
+        "fields": {
+            "store": 2,
+            "item": 1,
+            "price": "5.64",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 7,
+        "fields": {
+            "store": 2,
+            "item": 5,
+            "price": "2.38",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 8,
+        "fields": {
+            "store": 2,
+            "item": 7,
+            "price": "5.19",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 9,
+        "fields": {
+            "store": 3,
+            "item": 8,
+            "price": "2.47",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 10,
+        "fields": {
+            "store": 3,
+            "item": 9,
+            "price": "6.46",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 11,
+        "fields": {
+            "store": 3,
+            "item": 10,
+            "price": "2.07",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 12,
+        "fields": {
+            "store": 3,
+            "item": 11,
+            "price": "6.81",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 13,
+        "fields": {
+            "store": 3,
+            "item": 12,
+            "price": "1.07",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 14,
+        "fields": {
+            "store": 3,
+            "item": 13,
+            "price": "3.29",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 15,
+        "fields": {
+            "store": 4,
+            "item": 14,
+            "price": "3.15",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 16,
+        "fields": {
+            "store": 4,
+            "item": 15,
+            "price": "9.82",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 17,
+        "fields": {
+            "store": 4,
+            "item": 16,
+            "price": "3.28",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 18,
+        "fields": {
+            "store": 4,
+            "item": 17,
+            "price": "7.36",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 19,
+        "fields": {
+            "store": 4,
+            "item": 18,
+            "price": "6.16",
+            "updated_at": "2025-05-30T19:16:55Z"
+        }
+    }
+]
