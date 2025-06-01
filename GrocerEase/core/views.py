@@ -20,7 +20,7 @@ def get_kroger_token():
 
     data = {
         "grant_type": "client_credentials",
-        "scope": "product.compact "
+        "scope": "product.compact"
     }
 
     url = "https://api-ce.kroger.com/v1/connect/oauth2/token"
