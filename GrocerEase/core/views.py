@@ -80,13 +80,14 @@ def shopping_list_view(request):
 
     if request.method == 'POST' and ('item' in request.POST or 'manual_item_name' in request.POST):
         form = AddItemForm(request.POST)
+        products = []
         if form.is_valid():
             item_name = request.POST.get('manual_item_name') or form.cleaned_data['item'].name
             quantity = form.cleaned_data['quantity']
 
             token = get_kroger_token()
             headers = {"Authorization": f"Bearer {token}"}
-            response = requests.get(f"https://api.kroger.com/v1/products?filter.term={item_name}&filter.limit=1", headers=headers)
+            response = requests.get(f"https://api-ce.kroger.com/v1/products?filter.term={item_name}&filter.limit=1", headers=headers)
             data = response.json()
             products = data.get("data", [])
             if products:
@@ -149,9 +150,12 @@ def shopping_list_view(request):
         return redirect('shopping_list')
 
     form = AddItemForm()
+    products = []  # ✅ Ensures kroger_results always has a value
+
     context = {
         'form': form,
         'shopping_list': shopping_list,
+        'kroger_results': products
     }
     return render(request, 'shopping_list.html', context)
 
@@ -258,9 +262,10 @@ def store_item_suggestions(request):
     if query:
         token = get_kroger_token()
         headers = {"Authorization": f"Bearer {token}"}
-        response = requests.get(f'https://api.kroger.com/v1/products?filter.term={query}&filter.limit=5', headers=headers)
+        response = requests.get(f'https://api-ce.kroger.com/v1/products?filter.term={query}&filter.limit=5', headers=headers)
         data = response.json()
         for item in data.get('data', []):
             results.append({'label': item.get('description', 'Item'), 'value': item.get('description', 'Item')})
 
     return JsonResponse(results, safe=False)
+
