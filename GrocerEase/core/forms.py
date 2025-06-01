@@ -10,8 +10,8 @@ class ShoppingListForm(forms.ModelForm):
 
 class AddItemForm(forms.Form):
     item = forms.ModelChoiceField(queryset=StoreItem.objects.all(), required=False, label='Select from list')
-    manual_item_name = forms.CharField(max_length=100, required=False, label='Enter item name')
-    quantity = forms.IntegerField(min_value=1, initial=1)
+    manual_item_name = forms.CharField(max_length=100, required=True, label='Enter item name')
+    quantity = forms.IntegerField(min_value=1, initial=1, required=True)
 
     def clean(self):
         cleaned_data = super().clean()

@@ -109,7 +109,7 @@ def shopping_list_view(request):
                     price = 5.99
 
                 list_item, created = ListItem.objects.get_or_create(name=title)
-                list_item.quantity = quantity if created else list_item.quantity + quantity
+                list_item.quantity = quantity
                 list_item.price = promo_price or regular_price or 5.99
                 list_item.regular_price = regular_price
                 list_item.promo_price = promo_price
