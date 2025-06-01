@@ -224,7 +224,8 @@ def compare_prices_view(request):
 
             # Fallback if no product found
             if not product_data:
-                fallback_term = item.search_term or item.get_name().split()[0]
+                import re
+                fallback_term = item.search_term or re.sub(r'[^a-zA-Z0-9 ]', '', item.get_name()).split()[0].lower()
                 print(f"⏪ Fallback search: '{fallback_term}' at {store_name}")
                 response = requests.get(
                     "https://api-ce.kroger.com/v1/products",
