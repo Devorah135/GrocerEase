@@ -1,0 +1,30 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    padding: 24px;
+}
+
+h1 {
+    color: #222;
+    letter-spacing: 1px;
+}
+
+button {
+    background: #b6e0fe;
+    color: #333;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #a7c7e7;
+}
+
+form {
+    display: inline;
+}

@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class Address(models.Model):
@@ -13,32 +16,48 @@ class Address(models.Model):
 
 class StoreItem(models.Model):
     name = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
-    quantity = models.PositiveIntegerField(default=1)
 
-    def change_price(self, new_price):
-        self.price = new_price
-        self.save()
+    def change_price(self, new_price, store):
+        sip, _ = StoreItemPrice.objects.get_or_create(item=self, store=store)
+        sip.price = new_price
+        sip.save()
 
     def __str__(self):
-        return f"{self.name} (${self.price}) x {self.quantity}"
+        return f"{self.name}"
 
 
 class ListItem(models.Model):
-    item = models.ForeignKey(StoreItem, on_delete=models.CASCADE)
+    # Optional link to a local StoreItem (for dropdown use)
+    store_item = models.ForeignKey('StoreItem', on_delete=models.SET_NULL, null=True, blank=True)
 
-    def stores_to_prices(self):
-        """
-        Returns a dictionary of {Store: Price} for this item's prices at different stores.
-        """
-        return {
-            price.store: price.price
-            for price in self.item.store_prices.all()
-        }
+    # Support for manual/API-added items
+    name = models.CharField(max_length=255, null=True, blank=True)
+    brand = models.CharField(max_length=255, null=True, blank=True)  # NEW
+    image_url = models.URLField(null=True, blank=True)              # NEW
+
+    quantity = models.PositiveIntegerField(default=1)
+
+    # Store price pulled from API
+    regular_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    promo_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
-        return self.item.name
+        label = self.name or (self.store_item.name if self.store_item else "Unknown Item")
+        return f"{label} x {self.quantity}"
 
+    def get_name(self):
+        return self.name if self.name else (self.store_item.name if self.store_item else "Unnamed")
+
+    def get_price(self):
+        return self.price if self.price is not None else "N/A"
+
+    def stores_to_prices(self):
+        if self.store_item:
+            return {
+                price.store: price.price
+                for price in self.store_item.store_prices.all()
+            }
+        return {}
 
 class Store(models.Model):
     name = models.CharField(max_length=100)
@@ -68,8 +87,36 @@ class StoreItemPrice(models.Model):
         return f"{self.item.name} at {self.store.name}: ${self.price}"
 
 
+def get_default_user():
+    User = get_user_model()
+    default_user, _ = User.objects.get_or_create(
+        username='default_user',
+        defaults={'password': 'default_password'}
+    )
+    return default_user.id
+
+
 class ShoppingList(models.Model):
-    items = models.ManyToManyField(ListItem, blank=True)
+    items = models.ManyToManyField(ListItem)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='shopping_list_user',
+        default=get_default_user
+    )
+    name = models.CharField(max_length=255, default="Default List")
+
+    def total_price(self, store=None):
+        if store is None:
+            return min(self.total_store_prices().values(), default=0)
+        total = 0
+        for list_item in self.items.all():
+            try:
+                sip = StoreItemPrice.objects.get(item=list_item.item, store=store)
+                total += sip.price * list_item.quantity
+            except StoreItemPrice.DoesNotExist:
+                pass
+        return total
 
     def clear_list(self):
         self.items.clear()
@@ -81,15 +128,11 @@ class ShoppingList(models.Model):
         self.items.add(item)
 
     def total_store_prices(self):
-        """
-        Returns a dict of Store: total_price for the entire shopping list.
-        """
         totals = {}
         for list_item in self.items.all():
-            item = list_item.item
-            for price in item.store_prices.all():
+            for price in list_item.item.store_prices.all():
                 store = price.store
-                total = price.price * item.quantity
+                total = price.price * list_item.quantity
                 totals[store] = totals.get(store, 0) + total
         return totals
 
@@ -97,13 +140,8 @@ class ShoppingList(models.Model):
         return f"ShoppingList #{self.id}"
 
 
-class User(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email_address = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)  # You can hash this later or use Django's auth system
-    address = models.OneToOneField(Address, on_delete=models.CASCADE)
-    shopping_list = models.OneToOneField(ShoppingList, on_delete=models.SET_NULL, null=True, blank=True)
+class User(AbstractUser):
+    address = models.OneToOneField(Address, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.username

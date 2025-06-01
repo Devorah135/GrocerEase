@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}GROCEREASE{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="{% static 'shopping-list-styles.css' %}">
+</head>
+<body>
+
+<header>
+    <h1>GROCEREASE</h1>
+    <nav>
+        {% if user.is_authenticated %}
+            <a href="{% url 'shopping_list' %}">My Shopping List</a>
+            {% if user.is_staff %}
+                | <a href="{% url 'store_inventory' %}">Manage Inventory</a>
+            {% endif %}
+            | <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+
+        {% else %}
+            <a href="{% url 'login' %}">Login</a>
+            | <a href="{% url 'signup' %}">Signup</a>
+        {% endif %}
+    </nav>
+    <hr>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,168 @@
+[
+    {
+        "model": "core.address",
+        "pk": 1,
+        "fields": {
+            "street": "123 Main St",
+            "city": "Springfield",
+            "state": "IL",
+            "zip_code": "62701",
+            "country": "USA"
+        }
+    },
+    {
+        "model": "core.address",
+        "pk": 2,
+        "fields": {
+            "street": "456 Shabbat Ave",
+            "city": "Lakewood",
+            "state": "NJ",
+            "zip_code": "08701",
+            "country": "USA"
+        }
+    },
+    {
+        "model": "core.store",
+        "pk": 1,
+        "fields": {
+            "name": "Local Grocery",
+            "address": 1
+        }
+    },
+    {
+        "model": "core.store",
+        "pk": 2,
+        "fields": {
+            "name": "Shabbat Groceries",
+            "address": 2
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 1,
+        "fields": {
+            "name": "Milk",
+            "price": "2.99",
+            "quantity": 10
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 2,
+        "fields": {
+            "name": "Challah",
+            "price": "4.99",
+            "quantity": 50
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 1,
+        "fields": {
+            "store": 1,
+            "item": 1,
+            "price": "2.99",
+            "updated_at": "2023-10-01T12:00:00Z"
+        }
+    },
+    {
+        "model": "core.storeitemprice",
+        "pk": 2,
+        "fields": {
+            "store": 2,
+            "item": 2,
+            "price": "4.99",
+            "updated_at": "2023-10-01T12:00:00Z"
+        }
+    },
+    {
+        "model": "core.listitem",
+        "pk": 1,
+        "fields": {
+            "item": 1
+        }
+    },
+    {
+        "model": "core.listitem",
+        "pk": 2,
+        "fields": {
+            "item": 2
+        }
+    },
+    {
+        "model": "core.shoppinglist",
+        "pk": 1,
+        "fields": {
+            "items": [1, 2]
+        }
+    },
+    {
+        "model": "core.user",
+        "pk": 1,
+        "fields": {
+            "first_name": "David",
+            "last_name": "Smith",
+            "username": "davidsmith",
+            "email": "david@example.com",
+            "password": "pbkdf2_sha256$260000$example$hashedpassword",
+            "address": 1
+        }
+    },
+    {
+        "model": "core.user",
+        "pk": 2,
+        "fields": {
+            "first_name": "Sarah",
+            "last_name": "Levy",
+            "username": "sarahlevy",
+            "email": "sarah.levy@example.com",
+            "password": "pbkdf2_sha256$260000$examples$hashedpassword",
+            "address": 2
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 3,
+        "fields": {
+            "name": "Eggs",
+            "price": "3.49",
+            "quantity": 30
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 4,
+        "fields": {
+            "name": "Butter",
+            "price": "2.79",
+            "quantity": 20
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 5,
+        "fields": {
+            "name": "Apples",
+            "price": "1.99",
+            "quantity": 100
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 6,
+        "fields": {
+            "name": "Orange Juice",
+            "price": "4.49",
+            "quantity": 15
+        }
+    },
+    {
+        "model": "core.storeitem",
+        "pk": 7,
+        "fields": {
+            "name": "Chicken Breast",
+            "price": "5.99",
+            "quantity": 25
+        }
+    }
+]

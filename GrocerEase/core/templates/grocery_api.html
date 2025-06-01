@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kroger Grocery Products</title>
+</head>
+<body>
+<h1>Kroger Grocery Products</h1>
+<ul>
+    {% for product in products %}
+        <li>
+            <strong>{{ product.description }}</strong><br>
+            {% if product.images %}
+                <img src="{{ product.images.0.sizes.0.url }}" alt="{{ product.description }}" width="100"><br>
+            {% endif %}
+            Brand: {{ product.brand }}
+        </li>
+    {% endfor %}
+</ul>
+</body>
+</html>
+
+
+
+
+
+

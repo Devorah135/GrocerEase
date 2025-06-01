@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Price Comparison{% endblock %}
+{% load static %}
+{% load custom_tags %}
+
+{% block content %}
+    <h1>Price Comparison</h1>
+
+    {% if sorted_totals %}
+        <ul>
+            {% for store, total in sorted_totals %}
+                <li>
+                    {{ store }}: ${{ total|floatformat:2 }}
+                    {% if store == cheapest_store.name %}
+                        <strong>(Cheapest)</strong>
+                    {% endif %}
+                    {% with missing_items=missing_items_by_store|get_item:store %}
+                        {% if missing_items %}
+                            <br><span style="color: red;">⚠️ Missing prices for: {{ missing_items|join:", " }}</span>
+                        {% endif %}
+                    {% endwith %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h3>Best Deal</h3>
+        {% if savings %}
+            <p>You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}.</p>
+        {% else %}
+            <p>{{ cheapest_store.name }} is the only store with available pricing.</p>
+        {% endif %}
+    {% else %}
+        <p>No pricing available for your list.</p>
+    {% endif %}
+
+    <a href="{% url 'shopping_list' %}">← Back to Shopping List</a>
+{% endblock %}
