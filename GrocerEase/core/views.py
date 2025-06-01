@@ -115,6 +115,8 @@ def shopping_list_view(request):
                 list_item.promo_price = promo_price
                 list_item.brand = brand
                 list_item.image_url = image_url
+                if created:
+                    list_item.search_term = item_name.lower().split()[0]  # simple fallback keyword
                 list_item.save()
 
                 if not shopping_list.items.filter(id=list_item.id).exists():
@@ -213,6 +215,20 @@ def compare_prices_view(request):
             )
 
             product_data = response.json().get("data", [])
+
+            # Fallback if no product found
+            if not product_data:
+                fallback_term = item.search_term or item.get_name().split()[0]
+                response = requests.get(
+                    "https://api-ce.kroger.com/v1/products",
+                    headers=headers,
+                    params={
+                        "filter.term": fallback_term,
+                        "filter.locationId": store_location_id,
+                        "filter.limit": 1
+                    }
+                )
+                product_data = response.json().get("data", [])
             if product_data:
                 price_info = product_data[0].get("items", [{}])[0].get("price", {})
                 price = price_info.get("promo") or price_info.get("regular")
