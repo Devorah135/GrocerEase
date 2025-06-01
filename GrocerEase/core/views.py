@@ -204,6 +204,8 @@ def compare_prices_view(request):
         missing_items = []
 
         for item in items:
+            print(f"🔍 Trying full search: '{item.get_name()}' at {store_name}")
+
             response = requests.get(
                 "https://api-ce.kroger.com/v1/products",
                 headers=headers,
@@ -219,6 +221,7 @@ def compare_prices_view(request):
             # Fallback if no product found
             if not product_data:
                 fallback_term = item.search_term or item.get_name().split()[0]
+                print(f"⏪ Fallback search: '{fallback_term}' at {store_name}")
                 response = requests.get(
                     "https://api-ce.kroger.com/v1/products",
                     headers=headers,
@@ -229,6 +232,7 @@ def compare_prices_view(request):
                     }
                 )
                 product_data = response.json().get("data", [])
+
             if product_data:
                 price_info = product_data[0].get("items", [{}])[0].get("price", {})
                 price = price_info.get("promo") or price_info.get("regular")
@@ -239,9 +243,10 @@ def compare_prices_view(request):
             else:
                 missing_items.append(item.get_name())
 
-        if not missing_items:
-            store_totals[store_name] = round(total, 2)
-        else:
+        # ✅ Relaxed: include store even if missing items (for debugging)
+        store_totals[store_name] = round(total, 2)
+
+        if missing_items:
             missing_items_by_store[store_name] = missing_items
 
     if store_totals:
