@@ -42,12 +42,10 @@
         <h3>Stores with Missing Items</h3>
         <ul>
             {% for store, missing_items in missing_items_by_store.items %}
-                {% if store not in sorted_totals|dictsort:"0"|pluck:0 %}
-                    <li>
-                        {{ store }} <br>
-                        <span style="color: red;">⚠️ Missing prices for: {{ missing_items|join:", " }}</span>
-                    </li>
-                {% endif %}
+                <li>
+                    {{ store }} <br>
+                    <span style="color: red;">⚠️ Missing prices for: {{ missing_items|join:", " }}</span>
+                </li>
             {% endfor %}
         </ul>
     {% endif %}
