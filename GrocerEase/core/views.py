@@ -116,7 +116,11 @@ def shopping_list_view(request):
                 list_item.brand = brand
                 list_item.image_url = image_url
                 if created:
-                    list_item.search_term = item_name.lower().split()[0]  # simple fallback keyword
+                    words = item_name.lower().split()
+                    if len(words) >= 2:
+                        list_item.search_term = " ".join(words[-2:])
+                    else:
+                        list_item.search_term = words[0]
                 list_item.save()
 
                 if not shopping_list.items.filter(id=list_item.id).exists():
