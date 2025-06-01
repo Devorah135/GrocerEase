@@ -25,10 +25,14 @@
         </ul>
 
         <h3>Best Deal</h3>
-        {% if savings %}
-            <p>You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}.</p>
+        {% if cheapest_store %}
+            {% if savings %}
+                <p>You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}.</p>
+            {% else %}
+                <p>{{ cheapest_store.name }} is the only store with available pricing.</p>
+            {% endif %}
         {% else %}
-            <p>{{ cheapest_store.name }} is the only store with available pricing.</p>
+            <p>No store has complete pricing data for your shopping list.</p>
         {% endif %}
     {% else %}
         <p>No pricing available for your list.</p>

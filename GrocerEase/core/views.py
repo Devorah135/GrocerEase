@@ -190,6 +190,7 @@ def compare_prices_view(request):
     items = shopping_list.items.all()
     real_stores = get_kroger_stores(zip_code="45202")
     store_totals = {}
+    missing_items_by_store = {}
 
     token = get_kroger_token()
     headers = {"Authorization": f"Bearer {token}"}
@@ -198,10 +199,11 @@ def compare_prices_view(request):
         store_name = store.get("name", "Unknown Store")
         store_location_id = store.get("locationId")
         total = 0.0
+        missing_items = []
 
         for item in items:
             response = requests.get(
-                "https://api-ce.kroger.com/v1/products",  # ✅ Use certification env
+                "https://api-ce.kroger.com/v1/products",
                 headers=headers,
                 params={
                     "filter.term": item.get_name(),
@@ -213,22 +215,33 @@ def compare_prices_view(request):
             product_data = response.json().get("data", [])
             if product_data:
                 price_info = product_data[0].get("items", [{}])[0].get("price", {})
-                price = price_info.get("promo") or price_info.get("regular") or 5.99
+                price = price_info.get("promo") or price_info.get("regular")
+                if price is not None:
+                    total += price * item.quantity
+                else:
+                    missing_items.append(item.get_name())
             else:
-                price = 5.99
+                missing_items.append(item.get_name())
 
-            total += price * item.quantity
+        if not missing_items:
+            store_totals[store_name] = round(total, 2)
+        else:
+            missing_items_by_store[store_name] = missing_items
 
-        store_totals[store_name] = round(total, 2)
-
-    sorted_totals = sorted(store_totals.items(), key=lambda x: x[1])
-    cheapest_store, cheapest_price = sorted_totals[0]
-    savings = round(sorted_totals[1][1] - cheapest_price, 2) if len(sorted_totals) > 1 else None
+    if store_totals:
+        sorted_totals = sorted(store_totals.items(), key=lambda x: x[1])
+        cheapest_store, cheapest_price = sorted_totals[0]
+        savings = round(sorted_totals[1][1] - cheapest_price, 2) if len(sorted_totals) > 1 else None
+    else:
+        sorted_totals = []
+        cheapest_store = None
+        savings = None
 
     return render(request, 'compare_prices.html', {
         'sorted_totals': sorted_totals,
-        'cheapest_store': {'name': cheapest_store},
+        'cheapest_store': {'name': cheapest_store} if cheapest_store else None,
         'savings': savings,
+        'missing_items_by_store': missing_items_by_store
     })
 @staff_member_required
 def store_inventory_view(request):
