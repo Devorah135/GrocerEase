@@ -13,12 +13,11 @@ def get_kroger_token():
 
     data = {
         "grant_type": "client_credentials",
-        "scope": "product.compact location.basic"
+        "scope": "product.compact"
     }
 
     response = requests.post("https://api.kroger.com/v1/connect/oauth2/token", headers=headers, data=data)
 
-    print("Kroger Token Response:", response.status_code, response.text)  # <-- add this line
-
+    print("Kroger Token Response:", response.status_code, response.text)
     response.raise_for_status()
     return response.json()["access_token"]
