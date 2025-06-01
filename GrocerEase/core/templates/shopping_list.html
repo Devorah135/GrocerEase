@@ -60,26 +60,23 @@
             </tr>
         {% endfor %}
 
-        <tr>
+        <tr class="add-row">
             <td colspan="3">
                 <form method="POST" style="display: flex; gap: 1rem; align-items: center;">
                     {% csrf_token %}
-                    <div>
-{#                        {{ form.item }}#}
-                        <br>
-                        <label for="manual_item_name">Or enter item name:</label>
-                        <input type="text" name="manual_item_name" id="manual_item_name" value="{{ form.manual_item_name.value|default_if_none:'' }}">
-                    </div>
-                    <div>
-                        <label for="quantity">Quantity:</label><br>
-                        {{ form.quantity }}
-                    </div>
-                    <div>
-                        <button type="submit">Add</button>
-                    </div>
+                    <input type="text" name="manual_item_name" id="manual_item_name"
+                           placeholder="Enter item name"
+                           value="{{ form.manual_item_name.value|default_if_none:'' }}"
+                           style="flex: 7;">
+                    <input type="number" name="quantity"
+                           value="{{ form.quantity.value|default_if_none:1 }}"
+                           min="1" style="width: 60px; flex: 1;">
+                    <button type="submit" style="flex: 1">Add</button>
                 </form>
             </td>
         </tr>
+
+
 
         {% if kroger_results %}
             <tr>
@@ -122,7 +119,7 @@
         </tfoot>
     </table>
 
-    <a href="{% url 'compare_prices' %}">Compare Prices Across Stores</a>
+    <div class="centered"><a class="fake_links" href="{% url 'compare_prices' %}">Compare Prices Across Stores</a></div>
 
     <!-- jQuery and jQuery UI (autocomplete) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

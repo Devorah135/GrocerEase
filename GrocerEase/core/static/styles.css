@@ -28,3 +28,116 @@ button:hover {
 form {
     display: inline;
 }
+
+.fake_links {
+    display: inline-block;
+    background-color: #93c5fd;
+    padding: 8px 16px;
+    margin: 0 8px;
+    border-radius: 6px;
+    font-weight: 500;
+    color: #111827;
+    text-decoration: none;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.fake_links:hover {
+    background-color: #60a5fa;
+}
+
+.main-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 12px;
+    margin-bottom: 20px;
+}
+
+.nav-link {
+    background-color: #93c5fd;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    color: #111827;
+    text-decoration: none;
+    transition: background-color 0.2s ease-in-out;
+    border: none;
+}
+
+.nav-link:hover {
+    background-color: #60a5fa;
+}
+
+.logout-button {
+    background-color: #fca5a5;
+    color: #1f2937;
+}
+
+.logout-button:hover {
+    background-color: #f87171;
+}
+
+.logout-form {
+    margin: 0;
+}
+/* --- Navbar --- */
+.navbar {
+    background-color: #dbeafe;
+    padding: 12px 24px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    margin-bottom: 16px;
+}
+
+.navbar-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.nav-links {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.nav-link {
+    display: inline-block;
+    background-color: #3b82f6;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+    background-color: #2563eb;
+}
+
+.logout-btn {
+    background-color: #ef4444;
+}
+
+.logout-btn:hover {
+    background-color: #dc2626;
+}

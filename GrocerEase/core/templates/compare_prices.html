@@ -6,20 +6,21 @@
 {% block content %}
     <h1>Price Comparison</h1>
 
+    <div id="price_comparison">
     {% if fully_matched or partially_matched or unmatched %}
 
         {% if fully_matched %}
             <h3>Stores with All Items (Best Deals) - {{ fully_matched|length }}</h3>
-            <ul>
+            <div class="comparison_section">
                 {% for store, total in fully_matched %}
-                    <li>
-                        <strong>{{ store }}</strong>: ${{ total|floatformat:2 }}
+                    <div class="price_comparison_item">
+                        <strong>{{ store }}</strong>Total: ${{ total|floatformat:2 }}
                         {% if cheapest_store and store == cheapest_store.name %}
-                            <span style="color: mediumseagreen">(Cheapest)</span>
+                            <span style="color: mediumseagreen; font-weight: bold">(Cheapest)</span>
                         {% endif %}
-                    </li>
+                    </div>
                 {% endfor %}
-            </ul>
+            </div>
             {% if cheapest_store and savings %}
                 <p> You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}. </p>
             {%  elif cheapest_store %}
@@ -29,31 +30,41 @@
 
         {% if partially_matched %}
             <h3>Stores Missing Some Items - {{ partially_matched|length }}</h3>
-            <ul>
+            <div class="comparison_section">
                 {% for store, total, missing in partially_matched %}
-                    <li>
-                        <strong>{{ store }}</strong>
-                        <br>
-                        ({{ missing|length }} missing): ${{ total|floatformat:2 }}
-                        <br>
-                        <span style="color: red;">⚠️ Missing prices for: {{ missing|join:", " }}</span>
-                    </li>
+                    <div class="price_comparison_item">
+                        <div class="store-info">
+                            <div cladd="store-title">
+                                <strong>{{ store }}</strong>
+                            </div>
+                            <div class="store-sub">
+                                ({{ missing|length }} missing): ${{ total|floatformat:2 }}
+                            </div>
+                            <div class="store-missing">
+                                ⚠️ Missing prices for: {{ missing|join:", " }}
+                            </div>
+                        </div>
+                    </div>
                 {% endfor %}
-            </ul>
+            </div>
         {% endif %}
 
         {% if unmatched %}
             <h3>Stores Missing All Items - {{ unmatched|length }}</h3>
-            <ul>
+            <div class="comparison_section">
                 {% for store in unmatched %}
-                    <li><strong>{{ store }}</strong></li>
+                    <div class="price_comparison_item"><strong>{{ store }}</strong></div>
                 {% endfor %}
-            </ul>
+            </div>
         {% endif %}
 
     {% else %}
         <p>No pricing available for your list.</p>
     {% endif %}
+    </div>
 
-    <a href="{% url 'shopping_list' %}">← Back to Shopping List</a>
+    <div class="centered">
+        <a class="fake_links" href="{% url 'shopping_list' %}">← Back to Shopping List</a>
+    </div>
+
 {% endblock %}

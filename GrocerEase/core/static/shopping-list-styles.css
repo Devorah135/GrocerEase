@@ -1,9 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
 * {
     font-family: 'Century Gothic', 'Roboto', Arial, sans-serif;
 }
+
 body {
-    font-family: 'Century Gothic', 'Roboto', Arial, sans-serif;
     background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
     margin: 0;
     padding: 24px;
@@ -17,9 +18,11 @@ h1, h2 {
     margin-bottom: 24px;
 }
 
-#shopping_list {
+/* MAIN CONTAINER STYLES */
+#shopping_list,
+#price_comparison {
     list-style: none;
-    max-width: 700px;
+    width: 700px;
     margin: 0 auto;
     background-color: whitesmoke;
     border-radius: 12px;
@@ -27,7 +30,11 @@ h1, h2 {
     margin-bottom: 30px;
 }
 
-#shopping_list td select {
+/* DROPDOWNS & INPUTS INSIDE TABLE CELLS */
+#shopping_list td select,
+#price_comparison td select,
+#shopping_list td input[type="number"],
+#price_comparison td input[type="number"] {
     padding: 6px 10px;
     height: 36px;
     border: 1px solid #d1d5db;
@@ -35,22 +42,13 @@ h1, h2 {
     background-color: #f9fafb;
     font-size: 14px;
     color: #111827;
-}
-
-/* Match quantity input style */
-table#shopping_list td input[type="number"], #id_quantity{
-    padding: 6px 10px;
-    height: 36px;
     width: 60px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    background: #f9fafb;
-    font-size: 14px;
     text-align: center;
 }
 
-/* Match Add button to Delete buttons */
-table#shopping_list td button {
+/* DELETE & ACTION BUTTONS */
+#shopping_list td button,
+#price_comparison td button {
     padding: 6px 12px;
     height: 36px;
     background: #3b82f6;
@@ -63,11 +61,14 @@ table#shopping_list td button {
     transition: background-color 0.2s ease-in-out;
 }
 
-table#shopping_list td button:hover {
+#shopping_list td button:hover,
+#price_comparison td button:hover {
     background: #2563eb;
 }
 
-.shopping_list_item {
+/* LIST ITEM / CARD STYLING */
+.shopping_list_item,
+.price_comparison_item {
     background: #ffffff;
     margin-bottom: 14px;
     padding: 14px 18px;
@@ -85,69 +86,74 @@ table#shopping_list td button:hover {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
-input[type="number"] {
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    padding: 6px 10px;
-    background: #f9fafb;
-    color: #111827;
-    width: 60px;
-    font-size: 14px;
-    text-align: center;
-}
-
+/* CLEAR BUTTON */
 button#clear_list {
     background-color: orangered;
     padding: 10px;
     margin-top: 10px;
 }
 
-.add-item-wrapper {
-    max-width: 300px;
-    margin: 0 auto;
-    padding: 14px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    margin-top: 40px;
-}
-
-form#add_item label {
-    font-weight: 500;
-    display: block;
-    margin-bottom: 6px;
-    color: #374151;
-}
-
-form#add_item select,
-form#add_item input[type="number"] {
-    width: 100%;
+.add-row input {
+    width: 90%;
     padding: 10px;
-    margin-bottom: 16px;
-    border: 1px solid #d1d5db;
+    height: 28px;
     border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
     background-color: #f9fafb;
-    font-size: 14px;
-    color: #111827;
 }
 
-form#add_item input[type="number"] {
-    width: 80px;
-}
-
-form#add_item button {
-    width: auto;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 400;
-    background-color: #3b82f6;
+.add-row button {
+    background: #3b82f6;
     color: white;
+    padding: 6px 12px;
+    height: 28px;
     border: none;
     border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
+    width: 90%;
 }
 
-form#add_item button:hover {
-    background-color: #2563eb;
+.add-row button:hover {
+    background: #2563eb;
 }
+
+
+
+
+
+
+
+/* UTILITY CLASSES */
+.centered {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* PRICE COMPARISON STYLES */
+.store-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.store-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.store-sub {
+    font-size: 14px;
+    color: #4b5563;
+}
+
+.store-missing {
+    font-size: 13px;
+    color: #dc2626;
+    line-height: 1.4;
+}
+
