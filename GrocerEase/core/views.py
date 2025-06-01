@@ -40,7 +40,7 @@ def get_kroger_stores(zip_code="45202", limit=5):
         "filter.zipCode": zip_code,
         "filter.limit": limit
     }
-    response = requests.get("https://api.kroger.com/v1/locations", headers=headers, params=params)
+    response = requests.get("https://api-ce.kroger.com/v1/locations", headers=headers, params=params)
     response.raise_for_status()
     return response.json().get("data", [])
 
@@ -184,21 +184,20 @@ def login_view(request):
 def compare_prices_view(request):
     shopping_list = ShoppingList.objects.get(user=request.user)
     items = shopping_list.items.all()
-    real_stores = get_kroger_stores(zip_code="45202")  # Hardcoded zip
+    real_stores = get_kroger_stores(zip_code="45202")
     store_totals = {}
+
+    token = get_kroger_token()
+    headers = {"Authorization": f"Bearer {token}"}
 
     for store in real_stores:
         store_name = store.get("name", "Unknown Store")
         store_location_id = store.get("locationId")
-        store_totals[store_name] = 0.0
+        total = 0.0
 
-    # Cache the token once instead of per item
-    token = get_kroger_token()
-    headers = {"Authorization": f"Bearer {token}"}
-
-    for item in items:
-            product_response = requests.get(
-                "https://api.kroger.com/v1/products",
+        for item in items:
+            response = requests.get(
+                "https://api-ce.kroger.com/v1/products",  # ✅ Use certification env
                 headers=headers,
                 params={
                     "filter.term": item.get_name(),
@@ -206,14 +205,17 @@ def compare_prices_view(request):
                     "filter.limit": 1
                 }
             )
-            product_data = product_response.json().get("data", [])
+
+            product_data = response.json().get("data", [])
             if product_data:
                 price_info = product_data[0].get("items", [{}])[0].get("price", {})
                 price = price_info.get("promo") or price_info.get("regular") or 5.99
             else:
                 price = 5.99
 
-            store_totals[store_name] += price * item.quantity
+            total += price * item.quantity
+
+        store_totals[store_name] = round(total, 2)
 
     sorted_totals = sorted(store_totals.items(), key=lambda x: x[1])
     cheapest_store, cheapest_price = sorted_totals[0]
