@@ -29,7 +29,7 @@
             {% if savings %}
                 <p>You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}.</p>
             {% else %}
-                <p>{{ cheapest_store.name }} is the only store with available pricing.</p>
+                <p>{{ cheapest_store.name }} is the cheapest store.</p>
             {% endif %}
         {% else %}
             <p>No store has complete pricing data for your shopping list.</p>
