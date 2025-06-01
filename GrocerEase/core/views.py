@@ -17,13 +17,6 @@ from .models import Store, Address
 def get_kroger_token():
     client_id = "grocereaseapp-bbc6fl1b"
     client_secret = "0NYl23r6KbQMRSi262axbzvkVUR-UmV9eYkYWoSh"
-    credentials = f"{client_id}:{client_secret}"
-    encoded_credentials = b64encode(credentials.encode()).decode()
-
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": f"Basic {encoded_credentials}"
-    }
 
     data = {
         "grant_type": "client_credentials",
@@ -31,7 +24,12 @@ def get_kroger_token():
     }
 
     url = "https://api-ce.kroger.com/v1/connect/oauth2/token"
-    response = requests.post(url, headers=headers, data=data)
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+
+    response = requests.post(url, headers=headers, data=data, auth=(client_id, client_secret))
+    print(response.status_code, response.text)  # 👈 For debugging
     response.raise_for_status()
     return response.json()["access_token"]
 
