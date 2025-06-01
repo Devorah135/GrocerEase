@@ -1,19 +1,15 @@
 import concurrent.futures
-from re import match
 
 from django.contrib import messages
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect, render
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
-from django.conf import settings
 import requests
-from base64 import b64encode
-import random
 from .forms import AddItemForm
-from .models import ListItem, ShoppingList, Store, StoreItem
+from .models import ListItem, ShoppingList, StoreItem
 from .models import Store, Address
 
 # === Kroger API Token Helper ===
@@ -109,11 +105,11 @@ def shopping_list_view(request):
                     regular_price = price_info.get("regular")
                     promo_price = price_info.get("promo")
                 else:
-                    price = 5.99
+                    price = 0.00
 
                 list_item, created = ListItem.objects.get_or_create(name=title)
                 list_item.quantity = quantity
-                list_item.price = promo_price or regular_price or 5.99
+                list_item.price = promo_price or regular_price or 0.00
                 list_item.regular_price = regular_price
                 list_item.promo_price = promo_price
                 list_item.brand = brand
@@ -266,7 +262,7 @@ def compare_prices_view(request):
         for future in concurrent.futures.as_completed(futures):
             results.append(future.result())
 
-    # Sort results into three categories
+    # === Sort results into three categories ===
     fully_matched = []
     partially_matched = []
     unmatched = []
@@ -279,7 +275,7 @@ def compare_prices_view(request):
         else:
             unmatched.append(store_name)
 
-    # Sort fully matched stores by total price
+    # Sort stores by total price
     fully_matched.sort(key=lambda x: x[1])
     # If there are fully matched stores, find the cheapest one
     if fully_matched:
@@ -287,6 +283,8 @@ def compare_prices_view(request):
         savings = round(fully_matched[1][1] - fully_matched[0][1], 2) if len(fully_matched) > 1 else None
     else:
         cheapest_store, savings = None, None
+    # Sort by number of missing items, then by total price
+    partially_matched.sort(key=lambda x: (len(x[2]), x[1]))
 
     # pass the data to template
     return render(request, 'compare_prices.html', {
