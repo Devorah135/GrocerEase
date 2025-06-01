@@ -1,3 +1,6 @@
+import concurrent.futures
+from re import match
+
 from django.contrib import messages
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -190,6 +193,61 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+# === helper function, handles the price checking for one store ===
+def compare_store(store, items, headers):
+    import requests
+    import re
+
+    store_name = store.get("name", "Unknown Store")
+    store_location_id = store.get("locationId")
+    total = 0.0
+    matched_count = 0
+    missing_items = []
+
+    # Loop through each item in the shopping list
+    for item in items:
+        term = item.get_name()
+
+        # try full item name
+        response = requests.get(
+            "https://api-ce.kroger.com/v1/products",
+            headers=headers,
+            params={
+                "filter.term": term,
+                "filter.locationId": store_location_id,
+                "filter.limit": 1
+            }
+        )
+        product_data = response.json().get("data", [])
+
+        # Fallback search if no product found
+        if not product_data:
+            fallback_term = item.search_term or re.sub(r'[^a-zA-Z0-9 ]', '', term).split()[0].lower()
+            response = requests.get(
+                "https://api-ce.kroger.com/v1/products",
+                headers=headers,
+                params={
+                    "filter.term": fallback_term,
+                    "filter.locationId": store_location_id,
+                    "filter.limit": 1
+                }
+            )
+            product_data = response.json().get("data", [])
+
+        # if found a match, add its price * quantity to the total
+        if product_data:
+            price_info = product_data[0].get("items", [{}])[0].get("price", {})
+            price = price_info.get("promo") or price_info.get("regular")
+            if price is not None:
+                total += price * item.quantity
+                matched_count += 1
+            else:
+                missing_items.append(term)
+        else:
+            missing_items.append(term)
+
+    return (store_name, total, matched_count, missing_items)
+
 @login_required
 def compare_prices_view(request):
     shopping_list = ShoppingList.objects.get(user=request.user)
@@ -199,60 +257,21 @@ def compare_prices_view(request):
     token = get_kroger_token()
     headers = {"Authorization": f"Bearer {token}"}
 
-    # These will store the three categories
+    # === Run store comparisons in parallel ===
+    results = []
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # create list of futures for each store
+        futures = [executor.submit(compare_store, store, items, headers) for store in real_stores]
+        # get result from each thread and add to results list
+        for future in concurrent.futures.as_completed(futures):
+            results.append(future.result())
+
+    # Sort results into three categories
     fully_matched = []
     partially_matched = []
     unmatched = []
 
-    for store in real_stores:
-        store_name = store.get("name", "Unknown Store")
-        store_location_id = store.get("locationId")
-        total = 0.0
-        matched_count = 0
-        missing_items = []
-
-        for item in items:
-            print(f"🔍 Trying full search: '{item.get_name()}' at {store_name}")
-
-            response = requests.get(
-                "https://api-ce.kroger.com/v1/products",
-                headers=headers,
-                params={
-                    "filter.term": item.get_name(),
-                    "filter.locationId": store_location_id,
-                    "filter.limit": 1
-                }
-            )
-            product_data = response.json().get("data", [])
-
-            # Fallback search
-            if not product_data:
-                import re
-                fallback_term = item.search_term or re.sub(r'[^a-zA-Z0-9 ]', '', item.get_name()).split()[0].lower()
-                print(f"⏪ Fallback search: '{fallback_term}' at {store_name}")
-                response = requests.get(
-                    "https://api-ce.kroger.com/v1/products",
-                    headers=headers,
-                    params={
-                        "filter.term": fallback_term,
-                        "filter.locationId": store_location_id,
-                        "filter.limit": 1
-                    }
-                )
-                product_data = response.json().get("data", [])
-
-            if product_data:
-                price_info = product_data[0].get("items", [{}])[0].get("price", {})
-                price = price_info.get("promo") or price_info.get("regular")
-                if price is not None:
-                    total += price * item.quantity
-                    matched_count += 1
-                else:
-                    missing_items.append(item.get_name())
-            else:
-                missing_items.append(item.get_name())
-
-        # Categorize the store based on how many items matched
+    for store_name, total, matched_count, missing_items in results:
         if matched_count == len(items):
             fully_matched.append((store_name, round(total, 2)))
         elif matched_count > 0:
@@ -262,21 +281,100 @@ def compare_prices_view(request):
 
     # Sort fully matched stores by total price
     fully_matched.sort(key=lambda x: x[1])
-
+    # If there are fully matched stores, find the cheapest one
     if fully_matched:
         cheapest_store = fully_matched[0][0]
         savings = round(fully_matched[1][1] - fully_matched[0][1], 2) if len(fully_matched) > 1 else None
     else:
-        cheapest_store = None
-        savings = None
+        cheapest_store, savings = None, None
 
+    # pass the data to template
     return render(request, 'compare_prices.html', {
-        'fully_matched': fully_matched,                # List of (store_name, total)
-        'partially_matched': partially_matched,        # List of (store_name, total, missing_items)
-        'unmatched': unmatched,                        # List of store_name only
+        'fully_matched': fully_matched,
+        'partially_matched': partially_matched,
+        'unmatched': unmatched,
         'cheapest_store': {'name': cheapest_store} if cheapest_store else None,
         'savings': savings
     })
+
+    # # These will store the three categories
+    # fully_matched = []
+    # partially_matched = []
+    # unmatched = []
+    #
+    # for store in real_stores:
+    #     store_name = store.get("name", "Unknown Store")
+    #     store_location_id = store.get("locationId")
+    #     total = 0.0
+    #     matched_count = 0
+    #     missing_items = []
+    #
+    #     for item in items:
+    #         print(f"🔍 Trying full search: '{item.get_name()}' at {store_name}")
+    #
+    #         response = requests.get(
+    #             "https://api-ce.kroger.com/v1/products",
+    #             headers=headers,
+    #             params={
+    #                 "filter.term": item.get_name(),
+    #                 "filter.locationId": store_location_id,
+    #                 "filter.limit": 1
+    #             }
+    #         )
+    #         product_data = response.json().get("data", [])
+    #
+    #         # Fallback search
+    #         if not product_data:
+    #             import re
+    #             fallback_term = item.search_term or re.sub(r'[^a-zA-Z0-9 ]', '', item.get_name()).split()[0].lower()
+    #             print(f"⏪ Fallback search: '{fallback_term}' at {store_name}")
+    #             response = requests.get(
+    #                 "https://api-ce.kroger.com/v1/products",
+    #                 headers=headers,
+    #                 params={
+    #                     "filter.term": fallback_term,
+    #                     "filter.locationId": store_location_id,
+    #                     "filter.limit": 1
+    #                 }
+    #             )
+    #             product_data = response.json().get("data", [])
+    #
+    #         if product_data:
+    #             price_info = product_data[0].get("items", [{}])[0].get("price", {})
+    #             price = price_info.get("promo") or price_info.get("regular")
+    #             if price is not None:
+    #                 total += price * item.quantity
+    #                 matched_count += 1
+    #             else:
+    #                 missing_items.append(item.get_name())
+    #         else:
+    #             missing_items.append(item.get_name())
+    #
+    #     # Categorize the store based on how many items matched
+    #     if matched_count == len(items):
+    #         fully_matched.append((store_name, round(total, 2)))
+    #     elif matched_count > 0:
+    #         partially_matched.append((store_name, round(total, 2), missing_items))
+    #     else:
+    #         unmatched.append(store_name)
+    #
+    # # Sort fully matched stores by total price
+    # fully_matched.sort(key=lambda x: x[1])
+    #
+    # if fully_matched:
+    #     cheapest_store = fully_matched[0][0]
+    #     savings = round(fully_matched[1][1] - fully_matched[0][1], 2) if len(fully_matched) > 1 else None
+    # else:
+    #     cheapest_store = None
+    #     savings = None
+    #
+    # return render(request, 'compare_prices.html', {
+    #     'fully_matched': fully_matched,                # List of (store_name, total)
+    #     'partially_matched': partially_matched,        # List of (store_name, total, missing_items)
+    #     'unmatched': unmatched,                        # List of store_name only
+    #     'cheapest_store': {'name': cheapest_store} if cheapest_store else None,
+    #     'savings': savings
+    # })
 
 
 @staff_member_required
