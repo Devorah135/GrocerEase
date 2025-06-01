@@ -41,7 +41,7 @@ class ListItem(models.Model):
     regular_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     promo_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
 
-    earch_term = models.CharField(max_length=100, blank=True, null=True)
+    search_term = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         label = self.name or (self.store_item.name if self.store_item else "Unknown Item")
