@@ -248,27 +248,41 @@ def compare_prices_view(request):
             else:
                 missing_items.append(item.get_name())
 
-        # ✅ Relaxed: include store even if missing items (for debugging)
-        store_totals[store_name] = round(total, 2)
+        if total > 0:
+            store_totals[store_name] = round(total, 2)
 
         if missing_items:
-            missing_items_by_store[store_name] = missing_items
+                missing_items_by_store[store_name] = missing_items
 
     if store_totals:
         sorted_totals = sorted(store_totals.items(), key=lambda x: x[1])
-        cheapest_store, cheapest_price = sorted_totals[0]
-        savings = round(sorted_totals[1][1] - cheapest_price, 2) if len(sorted_totals) > 1 else None
+        fully_priced_stores = [store for store in sorted_totals if store[0] not in missing_items_by_store]
+
+        if fully_priced_stores:
+            cheapest_store, cheapest_price = fully_priced_stores[0]
+            savings = round(sorted_totals[1][1] - cheapest_price, 2) if len(sorted_totals) > 1 else None
+        else:
+            cheapest_store, cheapest_price = None, None
+            savings = None
     else:
         sorted_totals = []
         cheapest_store = None
         savings = None
 
+    displayed_store_names = set(store_totals.keys())
+    filtered_missing = {
+        name: items
+        for name, items in missing_items_by_store.items()
+        if name not in displayed_store_names
+    }
+
     return render(request, 'compare_prices.html', {
         'sorted_totals': sorted_totals,
         'cheapest_store': {'name': cheapest_store} if cheapest_store else None,
         'savings': savings,
-        'missing_items_by_store': missing_items_by_store
+        'missing_items_by_store': filtered_missing
     })
+
 @staff_member_required
 def store_inventory_view(request):
     stores = Store.objects.all()

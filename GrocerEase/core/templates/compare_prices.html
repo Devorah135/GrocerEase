@@ -7,6 +7,7 @@
 {% block content %}
     <h1>Price Comparison</h1>
 
+{# Display the stores with their total prices from lowest to highest #}
     {% if sorted_totals %}
         <ul>
             {% for store, total in sorted_totals %}
@@ -15,15 +16,19 @@
                     {% if store == cheapest_store.name %}
                         <strong>(Cheapest)</strong>
                     {% endif %}
+
+                    {# Print which items are missing from the store #}
                     {% with missing_items=missing_items_by_store|get_item:store %}
                         {% if missing_items %}
                             <br><span style="color: red;">⚠️ Missing prices for: {{ missing_items|join:", " }}</span>
                         {% endif %}
                     {% endwith %}
+
                 </li>
             {% endfor %}
         </ul>
 
+        {# Display the cheapest store and how much money is saved by shopping there #}
         <h3>Best Deal</h3>
         {% if cheapest_store %}
             {% if savings %}
@@ -31,9 +36,11 @@
             {% else %}
                 <p>{{ cheapest_store.name }} is the cheapest store.</p>
             {% endif %}
+
         {% else %}
             <p>No store has complete pricing data for your shopping list.</p>
         {% endif %}
+
     {% else %}
         <p>No pricing available for your list.</p>
     {% endif %}
