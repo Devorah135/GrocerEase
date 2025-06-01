@@ -27,18 +27,34 @@ class StoreItem(models.Model):
 
 
 class ListItem(models.Model):
-    item = models.ForeignKey(StoreItem, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)  # ✅ Quantity moved here
+    # Optional link to a local StoreItem (for dropdown use)
+    store_item = models.ForeignKey('StoreItem', on_delete=models.SET_NULL, null=True, blank=True)
 
-    def stores_to_prices(self):
-        return {
-            price.store: price.price
-            for price in self.item.store_prices.all()
-        }
+    # Support for manual/API-added items
+    name = models.CharField(max_length=255, null=True, blank=True)
+
+    quantity = models.PositiveIntegerField(default=1)
+
+    # Store price pulled from API
+    price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.item.name} x {self.quantity}"
+        label = self.name or (self.store_item.name if self.store_item else "Unknown Item")
+        return f"{label} x {self.quantity}"
 
+    def get_name(self):
+        return self.name if self.name else (self.store_item.name if self.store_item else "Unnamed")
+
+    def get_price(self):
+        return self.price if self.price is not None else "N/A"
+
+    def stores_to_prices(self):
+        if self.store_item:
+            return {
+                price.store: price.price
+                for price in self.store_item.store_prices.all()
+            }
+        return {}
 
 class Store(models.Model):
     name = models.CharField(max_length=100)

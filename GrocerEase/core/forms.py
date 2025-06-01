@@ -19,13 +19,9 @@ class AddItemForm(forms.Form):
         manual_name = cleaned_data.get('manual_item_name')
 
         if not item and not manual_name:
-            raise forms.ValidationError("Please select or enter an item.")
+            raise forms.ValidationError("Please select from the list or enter an item name.")
 
-        if manual_name:
-            try:
-                matched_item = StoreItem.objects.get(name__iexact=manual_name.strip())
-                cleaned_data['item'] = matched_item  # Use this instead of the empty 'item' field
-            except StoreItem.DoesNotExist:
-                raise forms.ValidationError(f"'{manual_name}' is not a valid item.")
+        # ✅ REMOVE the code that checks manual_name against the DB
+        # Allow manual_name to come from the API, not your DB
 
         return cleaned_data
