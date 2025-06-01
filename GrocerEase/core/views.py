@@ -195,16 +195,20 @@ def compare_prices_view(request):
     shopping_list = ShoppingList.objects.get(user=request.user)
     items = shopping_list.items.all()
     real_stores = get_kroger_stores(zip_code="45202")
-    store_totals = {}
-    missing_items_by_store = {}
 
     token = get_kroger_token()
     headers = {"Authorization": f"Bearer {token}"}
+
+    # These will store the three categories
+    fully_matched = []
+    partially_matched = []
+    unmatched = []
 
     for store in real_stores:
         store_name = store.get("name", "Unknown Store")
         store_location_id = store.get("locationId")
         total = 0.0
+        matched_count = 0
         missing_items = []
 
         for item in items:
@@ -219,10 +223,9 @@ def compare_prices_view(request):
                     "filter.limit": 1
                 }
             )
-
             product_data = response.json().get("data", [])
 
-            # Fallback if no product found
+            # Fallback search
             if not product_data:
                 import re
                 fallback_term = item.search_term or re.sub(r'[^a-zA-Z0-9 ]', '', item.get_name()).split()[0].lower()
@@ -243,45 +246,38 @@ def compare_prices_view(request):
                 price = price_info.get("promo") or price_info.get("regular")
                 if price is not None:
                     total += price * item.quantity
+                    matched_count += 1
                 else:
                     missing_items.append(item.get_name())
             else:
                 missing_items.append(item.get_name())
 
-        if total > 0:
-            store_totals[store_name] = round(total, 2)
-
-        if missing_items:
-                missing_items_by_store[store_name] = missing_items
-
-    if store_totals:
-        sorted_totals = sorted(store_totals.items(), key=lambda x: x[1])
-        fully_priced_stores = [store for store in sorted_totals if store[0] not in missing_items_by_store]
-
-        if fully_priced_stores:
-            cheapest_store, cheapest_price = fully_priced_stores[0]
-            savings = round(sorted_totals[1][1] - cheapest_price, 2) if len(sorted_totals) > 1 else None
+        # Categorize the store based on how many items matched
+        if matched_count == len(items):
+            fully_matched.append((store_name, round(total, 2)))
+        elif matched_count > 0:
+            partially_matched.append((store_name, round(total, 2), missing_items))
         else:
-            cheapest_store, cheapest_price = None, None
-            savings = None
+            unmatched.append(store_name)
+
+    # Sort fully matched stores by total price
+    fully_matched.sort(key=lambda x: x[1])
+
+    if fully_matched:
+        cheapest_store = fully_matched[0][0]
+        savings = round(fully_matched[1][1] - fully_matched[0][1], 2) if len(fully_matched) > 1 else None
     else:
-        sorted_totals = []
         cheapest_store = None
         savings = None
 
-    displayed_store_names = set(store_totals.keys())
-    filtered_missing = {
-        name: items
-        for name, items in missing_items_by_store.items()
-        if name not in displayed_store_names
-    }
-
     return render(request, 'compare_prices.html', {
-        'sorted_totals': sorted_totals,
+        'fully_matched': fully_matched,                # List of (store_name, total)
+        'partially_matched': partially_matched,        # List of (store_name, total, missing_items)
+        'unmatched': unmatched,                        # List of store_name only
         'cheapest_store': {'name': cheapest_store} if cheapest_store else None,
-        'savings': savings,
-        'missing_items_by_store': filtered_missing
+        'savings': savings
     })
+
 
 @staff_member_required
 def store_inventory_view(request):

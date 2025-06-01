@@ -3,58 +3,53 @@
 {% block title %}Price Comparison{% endblock %}
 {% load static %}
 {% load custom_tags %}
-
 {% block content %}
     <h1>Price Comparison</h1>
 
-{# Display the stores with their total prices from lowest to highest #}
-    {% if sorted_totals %}
-        <ul>
-            {% for store, total in sorted_totals %}
-                <li>
-                    {{ store }}: ${{ total|floatformat:2 }}
-                    {% if store == cheapest_store.name %}
-                        <strong>(Cheapest)</strong>
-                    {% endif %}
+    {% if fully_matched or partially_matched or unmatched %}
 
-                    {# Print which items are missing from the store #}
-                    {% with missing_items=missing_items_by_store|get_item:store %}
-                        {% if missing_items %}
-                            <br><span style="color: red;">⚠️ Missing prices for: {{ missing_items|join:", " }}</span>
+        {% if fully_matched %}
+            <h3>Stores with All Items (Best Deals) - {{ fully_matched|length }}</h3>
+            <ul>
+                {% for store, total in fully_matched %}
+                    <li>
+                        {{ store }}: ${{ total|floatformat:2 }}
+                        {% if cheapest_store and store == cheapest_store.name %}
+                            <strong>(Cheapest)</strong>
                         {% endif %}
-                    {% endwith %}
-
-                </li>
-            {% endfor %}
-        </ul>
-
-        {# Display the cheapest store and how much money is saved by shopping there #}
-        <h3>Best Deal</h3>
-        {% if cheapest_store %}
-            {% if savings %}
-                <p>You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}.</p>
-            {% else %}
-                <p>{{ cheapest_store.name }} is the cheapest store.</p>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% if cheapest_store and savings %}
+                <p> You save ${{ savings|floatformat:2 }} by shopping at {{ cheapest_store.name }}. </p>
+            {%  elif cheapest_store %}
+                <p> {{ cheapest_store.name }} is the cheapest store.</p>
             {% endif %}
+        {% endif %}
 
-        {% else %}
-            <p>No store has complete pricing data for your shopping list.</p>
+        {% if partially_matched %}
+            <h3>Stores Missing Some Items - {{ partially_matched|length }}</h3>
+            <ul>
+                {% for store, total, missing in partially_matched %}
+                    <li>
+                        {{ store }}: ${{ total|floatformat:2 }} <br>
+                        <span style="color: red;">⚠️ Missing prices for: {{ missing|join:", " }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% if unmatched %}
+            <h3>Stores Missing All Items - {{ unmatched|length }}</h3>
+            <ul>
+                {% for store in unmatched %}
+                    <li>{{ store }} — ❌ No matching items found</li>
+                {% endfor %}
+            </ul>
         {% endif %}
 
     {% else %}
         <p>No pricing available for your list.</p>
-    {% endif %}
-
-    {% if missing_items_by_store %}
-        <h3>Stores with Missing Items</h3>
-        <ul>
-            {% for store, missing_items in missing_items_by_store.items %}
-                <li>
-                    {{ store }} <br>
-                    <span style="color: red;">⚠️ Missing prices for: {{ missing_items|join:", " }}</span>
-                </li>
-            {% endfor %}
-        </ul>
     {% endif %}
 
     <a href="{% url 'shopping_list' %}">← Back to Shopping List</a>
