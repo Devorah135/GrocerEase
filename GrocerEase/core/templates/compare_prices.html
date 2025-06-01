@@ -13,9 +13,9 @@
             <ul>
                 {% for store, total in fully_matched %}
                     <li>
-                        {{ store }}: ${{ total|floatformat:2 }}
+                        <strong>{{ store }}</strong>: ${{ total|floatformat:2 }}
                         {% if cheapest_store and store == cheapest_store.name %}
-                            <strong>(Cheapest)</strong>
+                            <span style="color: mediumseagreen">(Cheapest)</span>
                         {% endif %}
                     </li>
                 {% endfor %}
@@ -32,7 +32,10 @@
             <ul>
                 {% for store, total, missing in partially_matched %}
                     <li>
-                        {{ store }}: ${{ total|floatformat:2 }} <br>
+                        <strong>{{ store }}</strong>
+                        <br>
+                        ({{ missing|length }} missing): ${{ total|floatformat:2 }}
+                        <br>
                         <span style="color: red;">⚠️ Missing prices for: {{ missing|join:", " }}</span>
                     </li>
                 {% endfor %}
@@ -43,7 +46,7 @@
             <h3>Stores Missing All Items - {{ unmatched|length }}</h3>
             <ul>
                 {% for store in unmatched %}
-                    <li>{{ store }} — ❌ No matching items found</li>
+                    <li><strong>{{ store }}</strong></li>
                 {% endfor %}
             </ul>
         {% endif %}
