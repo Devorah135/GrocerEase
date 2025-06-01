@@ -40,8 +40,8 @@
                         ${{ item.regular_price }}
                     {% elif item.price %}
                         ${{ item.price }}
-                    {% else %}
-                        <em>No price available</em>
+{#                    {% else %}#}
+{#                        <em>No price available</em>#}
                     {% endif %}
                 </td>
                 <td>
@@ -65,7 +65,7 @@
                 <form method="POST" style="display: flex; gap: 1rem; align-items: center;">
                     {% csrf_token %}
                     <div>
-                        {{ form.item }}
+{#                        {{ form.item }}#}
                         <br>
                         <label for="manual_item_name">Or enter item name:</label>
                         <input type="text" name="manual_item_name" id="manual_item_name" value="{{ form.manual_item_name.value|default_if_none:'' }}">
@@ -133,7 +133,7 @@
         $(function () {
             $("#manual_item_name").autocomplete({
                 source: "/suggest-items/",
-                minLength: 2,
+                minLength: 1,
                 select: function(event, ui) {
                     $('#manual_item_name').val(ui.item.value);
                     return false;
