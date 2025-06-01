@@ -11,6 +11,7 @@ from base64 import b64encode
 import random
 from .forms import AddItemForm
 from .models import ListItem, ShoppingList, Store, StoreItem
+from .models import Store, Address
 
 # === Kroger API Token Helper ===
 def get_kroger_token():
@@ -26,15 +27,41 @@ def get_kroger_token():
 
     data = {
         "grant_type": "client_credentials",
-        "scope": "product.compact"
+        "scope": "product.compact location.basic"
     }
 
     url = "https://api-ce.kroger.com/v1/connect/oauth2/token"
     response = requests.post(url, headers=headers, data=data)
-
     response.raise_for_status()
     return response.json()["access_token"]
-# === Views ===
+
+def get_kroger_stores(zip_code="45202", limit=5):
+    token = get_kroger_token()
+    headers = {"Authorization": f"Bearer {token}"}
+    params = {
+        "filter.zipCode": zip_code,
+        "filter.limit": limit
+    }
+    response = requests.get("https://api.kroger.com/v1/locations", headers=headers, params=params)
+    response.raise_for_status()
+    return response.json().get("data", [])
+
+def save_kroger_stores(zip_code):
+    stores = get_kroger_stores(zip_code)
+    for s in stores:
+        address_data = s['address']
+        address = Address.objects.create(
+            street=address_data.get('addressLine1', ''),
+            city=address_data.get('city', ''),
+            state=address_data.get('state', ''),
+            zip_code=address_data.get('zipCode', ''),
+            country='USA'
+        )
+        Store.objects.create(
+            name=s['name'],
+            address=address
+        )
+
 def grocery_products(request):
     token = get_kroger_token()
     headers = {"Authorization": f"Bearer {token}"}
@@ -56,7 +83,7 @@ def shopping_list_view(request):
     if request.method == 'POST' and ('item' in request.POST or 'manual_item_name' in request.POST):
         form = AddItemForm(request.POST)
         if form.is_valid():
-            item_name = request.POST.get('manual_item_name') or form.cleaned_data['item']
+            item_name = request.POST.get('manual_item_name') or form.cleaned_data['item'].name
             quantity = form.cleaned_data['quantity']
 
             token = get_kroger_token()
@@ -67,13 +94,32 @@ def shopping_list_view(request):
             if products:
                 product = products[0]
                 title = product.get("description", item_name)
-                price = 5.99  # default placeholder price (can be replaced if pricing data available)
+                brand = product.get("brand", "Unknown Brand")
+                image_url = ""
+                if product.get("images"):
+                    image = product["images"][0]
+                    if image.get("sizes"):
+                        image_url = image["sizes"][0].get("url", "")
+                price = None
+                items = product.get("items", [])
+                if items:
+                    price_info = product.get("items", [{}])[0].get("price", {})
+                    regular_price = price_info.get("regular")
+                    promo_price = price_info.get("promo")
+                else:
+                    price = 5.99
 
                 list_item, created = ListItem.objects.get_or_create(name=title)
                 list_item.quantity = quantity if created else list_item.quantity + quantity
-                list_item.price = price
+                list_item.price = promo_price or regular_price or 5.99
+                list_item.regular_price = regular_price
+                list_item.promo_price = promo_price
+                list_item.brand = brand
+                list_item.image_url = image_url
                 list_item.save()
-                shopping_list.add_item(list_item)
+
+                if not shopping_list.items.filter(id=list_item.id).exists():
+                    shopping_list.add_item(list_item)
                 return redirect('shopping_list')
             else:
                 messages.error(request, f"No product found for '{item_name}'")
@@ -140,14 +186,36 @@ def login_view(request):
 def compare_prices_view(request):
     shopping_list = ShoppingList.objects.get(user=request.user)
     items = shopping_list.items.all()
-    FAKE_STORES = ['Target', 'Walmart', 'Costco']
-    store_totals = {store: 0.0 for store in FAKE_STORES}
+    real_stores = get_kroger_stores(zip_code="45202")  # Hardcoded zip
+    store_totals = {}
+
+    for store in real_stores:
+        store_name = store.get("name", "Unknown Store")
+        store_location_id = store.get("locationId")
+        store_totals[store_name] = 0.0
+
+    # Cache the token once instead of per item
+    token = get_kroger_token()
+    headers = {"Authorization": f"Bearer {token}"}
 
     for item in items:
-        base_price = item.price or 5.99
-        for store in FAKE_STORES:
-            variation = random.uniform(-2, 2)
-            store_totals[store] += round(max(base_price + variation, 1) * item.quantity, 2)
+            product_response = requests.get(
+                "https://api.kroger.com/v1/products",
+                headers=headers,
+                params={
+                    "filter.term": item.get_name(),
+                    "filter.locationId": store_location_id,
+                    "filter.limit": 1
+                }
+            )
+            product_data = product_response.json().get("data", [])
+            if product_data:
+                price_info = product_data[0].get("items", [{}])[0].get("price", {})
+                price = price_info.get("promo") or price_info.get("regular") or 5.99
+            else:
+                price = 5.99
+
+            store_totals[store_name] += price * item.quantity
 
     sorted_totals = sorted(store_totals.items(), key=lambda x: x[1])
     cheapest_store, cheapest_price = sorted_totals[0]
@@ -158,7 +226,6 @@ def compare_prices_view(request):
         'cheapest_store': {'name': cheapest_store},
         'savings': savings,
     })
-
 @staff_member_required
 def store_inventory_view(request):
     stores = Store.objects.all()

@@ -11,7 +11,7 @@
         <li>
             <strong>{{ product.description }}</strong><br>
             {% if product.images %}
-                <img src="{{ product.images.0.perspective }}" alt="{{ product.description }}" width="100"><br>
+                <img src="{{ product.images.0.sizes.0.url }}" alt="{{ product.description }}" width="100"><br>
             {% endif %}
             Brand: {{ product.brand }}
         </li>

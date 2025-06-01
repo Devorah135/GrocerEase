@@ -32,11 +32,14 @@ class ListItem(models.Model):
 
     # Support for manual/API-added items
     name = models.CharField(max_length=255, null=True, blank=True)
+    brand = models.CharField(max_length=255, null=True, blank=True)  # NEW
+    image_url = models.URLField(null=True, blank=True)              # NEW
 
     quantity = models.PositiveIntegerField(default=1)
 
     # Store price pulled from API
-    price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    regular_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    promo_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         label = self.name or (self.store_item.name if self.store_item else "Unknown Item")

@@ -3,6 +3,13 @@
 {% block title %}Shopping List{% endblock %}
 
 {% block content %}
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
     <h1>Your Shopping List</h1>
 
     {# Shopping List Table #}
@@ -18,12 +25,22 @@
         {% for item in shopping_list.items.all %}
             <tr>
                 <td>
-                    {% if item.name %}
-                        {{ item.name }}
-                    {% elif item.store_item %}
-                        {{ item.store_item.name }}
+                    <strong>{{ item.name }}</strong><br>
+                    {% if item.brand %}
+                        <small>{{ item.brand }}</small><br>
+                    {% endif %}
+                    {% if item.image_url %}
+                        <img src="{{ item.image_url }}" alt="{{ item.name }}" width="80"><br>
+                    {% endif %}
+                    {% if item.promo_price and item.regular_price and item.promo_price < item.regular_price %}
+                        <span style="color: red; font-weight: bold;">${{ item.promo_price }}</span>
+                        <span style="text-decoration: line-through; color: gray;">${{ item.regular_price }}</span>
+                    {% elif item.regular_price %}
+                        ${{ item.regular_price }}
+                    {% elif item.price %}
+                        ${{ item.price }}
                     {% else %}
-                        Unnamed
+                        <em>No price available</em>
                     {% endif %}
                 </td>
                 <td>
@@ -46,6 +63,7 @@
 
         <tr>
             <td colspan="3">
+
                 <form method="POST" style="display: flex; gap: 1rem; align-items: center;">
                     {% csrf_token %}
                     <div>
@@ -88,7 +106,11 @@
         $(function () {
             $("#manual_item_name").autocomplete({
                 source: "/suggest-items/",
-                minLength: 2
+                minLength: 2,
+                select: function(event, ui) {
+                    $('#manual_item_name').val(ui.item.value);
+                    return false;
+                }
             });
         });
     </script>
