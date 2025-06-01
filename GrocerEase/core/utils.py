@@ -17,5 +17,8 @@ def get_kroger_token():
     }
 
     response = requests.post("https://api.kroger.com/v1/connect/oauth2/token", headers=headers, data=data)
+
+    print("Kroger Token Response:", response.status_code, response.text)  # <-- add this line
+
     response.raise_for_status()
     return response.json()["access_token"]
