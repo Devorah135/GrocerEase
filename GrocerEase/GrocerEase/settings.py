@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-4tqh1a!n0qezmwfcxd-nljb!2j$%vt+7=pkpw%nxf__sk7$_h+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['3.87.247.125','34.207.71.249', '98.81.230.146', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['3.83.43.9','34.207.71.249', '98.81.230.146', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -78,17 +78,25 @@ WSGI_APPLICATION = 'GrocerEase.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'grocerease',
-        'USER': 'postgres',
-        'PASSWORD': 'mcon357pwd',  # Replace with your actual password
-        'HOST': 'mcon-357-db.chifotzikir0.us-east-1.rds.amazonaws.com',
-        'PORT': '5432',  # Default PostgreSQL port
+if os.getenv('USE_POSTGRES', 'false') == 'true':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'grocerease',
+            'USER': 'postgres',
+            'PASSWORD': 'mcon357pwd',  # Replace with your actual password
+            'HOST': 'mcon-357-db.chifotzikir0.us-east-1.rds.amazonaws.com',
+            'PORT': '5432',  # Default PostgreSQL port
+        }
     }
-}
 
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
