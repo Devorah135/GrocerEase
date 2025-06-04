@@ -56,7 +56,8 @@ def save_kroger_stores(zip_code):
         )
         Store.objects.create(
             name=s['name'],
-            address=address
+            address=address,
+            location_id=s.get('locationId')
         )
 
 def grocery_products(request):
@@ -120,6 +121,7 @@ def shopping_list_view(request):
                         list_item.search_term = " ".join(words[-2:])
                     else:
                         list_item.search_term = words[0]
+                list_item.kroger_upc = product.get("items", [{}])[0].get("upc")
                 list_item.save()
 
                 if not shopping_list.items.filter(id=list_item.id).exists():
@@ -202,19 +204,26 @@ def compare_store(store, items, headers):
 
     # Loop through each item in the shopping list
     for item in items:
-        term = item.get_name()
 
-        # try full item name
-        response = requests.get(
-            "https://api-ce.kroger.com/v1/products",
-            headers=headers,
-            params={
+        if item.kroger_upc:
+            print(f"🔎 Searching by UPC: {item.kroger_upc} at {store_name}") #precise searching
+            params = {
+                "filter.upc": item.kroger_upc,
+                "filter.locationId": store_location_id,
+                "filter.limit": 1
+            }
+        else:
+            term = item.search_term or item.get_name().split()[-1]
+            print(f"🔎 Searching by term: {term} at {store_name}")
+            params = {
                 "filter.term": term,
                 "filter.locationId": store_location_id,
                 "filter.limit": 1
             }
-        )
+
+        response = requests.get("https://api-ce.kroger.com/v1/products", headers=headers, params=params)
         product_data = response.json().get("data", [])
+
 
         # Fallback search if no product found
         if not product_data:
@@ -238,8 +247,10 @@ def compare_store(store, items, headers):
                 total += price * item.quantity
                 matched_count += 1
             else:
+                print(f"🟡 Found '{term}' at {store_name} but no price.")
                 missing_items.append(term)
         else:
+            print(f"🔴 No match found for '{term}' at {store_name}.")
             missing_items.append(term)
 
     return (store_name, total, matched_count, missing_items)

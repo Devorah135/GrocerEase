@@ -27,6 +27,9 @@ class StoreItem(models.Model):
 
 
 class ListItem(models.Model):
+    #store the UPC (Universal Product Code) of a product retrieved from the Kroger API
+    kroger_upc = models.CharField(max_length=50, null=True, blank=True)
+
     # Optional link to a local StoreItem (for dropdown use)
     store_item = models.ForeignKey('StoreItem', on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -64,6 +67,7 @@ class ListItem(models.Model):
 class Store(models.Model):
     name = models.CharField(max_length=100)
     address = models.OneToOneField(Address, on_delete=models.CASCADE)
+    location_id = models.CharField(max_length=20, null=True, blank=True)  # ✅ Add this line
     inventory = models.ManyToManyField(StoreItem, blank=True)
 
     def __str__(self):
